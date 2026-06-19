@@ -1,0 +1,27 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import App from './App.js';
+import './index.css';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      retry: 1,
+    },
+  },
+});
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element #root not found in the DOM');
+}
+
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </React.StrictMode>
+);

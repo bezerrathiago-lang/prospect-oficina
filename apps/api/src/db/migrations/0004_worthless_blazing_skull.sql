@@ -1,0 +1,1 @@
+CREATE INDEX `idx_tasks_consultant_date` ON `tasks` (`consultant_id`,`scheduled_date`);

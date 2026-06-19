@@ -1,0 +1,56 @@
+/**
+ * App — roteador principal React Router v6
+ *
+ * Estrutura de rotas:
+ *   /login           → LoginPage (pública)
+ *   /                → ProtectedRoute → AppLayout
+ *     index          → redireciona para /tarefas
+ *     /tarefas       → TasksPage
+ *     /novo          → NewServicePage
+ *     /historico     → CustomerHistoryPage (busca)
+ *     /historico/:customerId → CustomerHistoryPage (detalhe)
+ *     /configuracoes → SettingsPage
+ *   *                → redireciona para / (ProtectedRoute cuida do redirect para /login)
+ */
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+import LoginPage from './pages/LoginPage.js';
+import TasksPage from './pages/TasksPage.js';
+import NewServicePage from './pages/NewServicePage.js';
+import CustomerHistoryPage from './pages/CustomerHistoryPage.js';
+import SettingsPage from './pages/SettingsPage.js';
+import ContactResultPage from './pages/ContactResultPage.js';
+
+import ProtectedRoute from './components/layout/ProtectedRoute.js';
+import AppLayout from './components/layout/AppLayout.js';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* ── Rota pública ──────────────────────────────────── */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* ── Rotas protegidas ──────────────────────────────── */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            {/* Rota raiz: redireciona imediatamente para /tarefas */}
+            <Route index element={<Navigate to="/tarefas" replace />} />
+
+            <Route path="tarefas" element={<TasksPage />} />
+            <Route path="tarefas/:taskId/resultado" element={<ContactResultPage />} />
+            <Route path="novo" element={<NewServicePage />} />
+            <Route path="historico" element={<CustomerHistoryPage />} />
+            <Route path="historico/:customerId" element={<CustomerHistoryPage />} />
+            <Route path="configuracoes" element={<SettingsPage />} />
+          </Route>
+        </Route>
+
+        {/* ── Fallback ──────────────────────────────────────── */}
+        {/* Qualquer rota desconhecida vai para / que redireciona para /tarefas
+            (se autenticado) ou para /login (se não autenticado, via ProtectedRoute) */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
