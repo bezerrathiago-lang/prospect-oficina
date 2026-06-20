@@ -17,13 +17,27 @@ const REFRESH_MAX_AGE = 7 * 24 * 60 * 60; // 7 dias em segundos
 function cookieOptions(
   nodeEnv: string,
 ): Parameters<FastifyReply['setCookie']>[2] {
+  const isProd = nodeEnv === 'production';
   return {
     httpOnly: true,
-    sameSite: 'strict',
+    // Frontend (Vercel) e backend (Railway) ficam em domínios diferentes em produção.
+    // Cookie cross-site exige SameSite=None + Secure; em dev local usamos Strict.
+    sameSite: isProd ? 'none' : 'strict',
     path: '/',
     maxAge: REFRESH_MAX_AGE,
-    // Em produção, o cookie precisa da flag Secure (HTTPS)
-    secure: nodeEnv === 'production',
+    // Secure é obrigatório quando SameSite=None e em qualquer ambiente HTTPS
+    secure: isProd,
+  };
+}
+
+function clearCookieOptions(
+  nodeEnv: string,
+): Parameters<FastifyReply['clearCookie']>[1] {
+  const isProd = nodeEnv === 'production';
+  return {
+    path: '/',
+    sameSite: isProd ? 'none' : 'strict',
+    secure: isProd,
   };
 }
 
@@ -66,7 +80,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
         await authService.logout(tokenHash);
       }
 
-      reply.clearCookie(REFRESH_COOKIE, { path: '/' });
+      reply.clearCookie(REFRESH_COOKIE, clearCookieOptions(nodeEnv));
 
       return reply.code(200).send({ message: 'Sessão encerrada com sucesso.' });
     },

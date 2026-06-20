@@ -25,8 +25,8 @@ export interface CreateAbandonmentReasonData {
 }
 
 export interface UpdateAbandonmentReasonData {
-  label?: string;
-  is_active?: boolean;
+  label?: string | undefined;
+  is_active?: boolean | undefined;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────

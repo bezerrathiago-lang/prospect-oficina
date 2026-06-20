@@ -17,7 +17,9 @@ if (!url) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
-const client = createClient({ url });
+// authToken é exigido pelo Turso (libsql remoto); ausente em dev local (file:./dev.db)
+const authToken = process.env['DATABASE_AUTH_TOKEN'];
+const client = createClient(authToken ? { url, authToken } : { url });
 const db = drizzle(client);
 
 console.log('Running migrations...');
