@@ -1,0 +1,22 @@
+# Diretórios de ferramentas/agentes (não fazem parte do app)
+.aiox-core/
+.antigravity/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kimi/
+.github/
+
+# Documentação e artefatos de planejamento
+docs/
+
+# Git e dependências (Railway reinstala)
+.git/
+node_modules/
+**/node_modules/
+
+# Build local
+apps/api/dist/
+apps/web/dist/
+apps/api/dev.db

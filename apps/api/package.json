@@ -7,7 +7,7 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
-    "start:prod": "tsx src/db/migrate.ts && node dist/main.js",
+    "start:prod": "tsx src/db/migrate.ts && tsx src/db/seeds.ts && node dist/main.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seeds.ts",
