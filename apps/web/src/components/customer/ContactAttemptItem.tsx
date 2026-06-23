@@ -18,7 +18,7 @@ function formatDate(timestamp: number | null): string {
   const date = new Date(timestamp * 1000);
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
+  const year = String(date.getFullYear()).slice(-2);
   return `${day}/${month}/${year}`;
 }
 
@@ -47,6 +47,25 @@ export default function ContactAttemptItem({ attempt }: ContactAttemptItemProps)
           <p className="text-xs text-gray-400">{dateLabel}</p>
           <p className="text-sm text-amber-700 font-medium">
             Sem contato — reagendado para {formatDate(attempt.rescheduled_date)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (attempt.outcome === 'remeasured') {
+    const kmLabel =
+      attempt.new_mileage != null
+        ? `${attempt.new_mileage.toLocaleString('pt-BR')} km`
+        : 'nova km';
+    return (
+      <div className="flex items-start gap-2 py-2 border-b border-gray-100 last:border-0">
+        <span className="mt-0.5 shrink-0 text-blue-600 font-bold" aria-hidden="true">↻</span>
+        <div>
+          <p className="text-xs text-gray-400">{dateLabel}</p>
+          <p className="text-sm text-blue-700 font-medium">
+            Não chegou na km ({kmLabel}) — recalculado para{' '}
+            {formatDate(attempt.rescheduled_date)}
           </p>
         </div>
       </div>

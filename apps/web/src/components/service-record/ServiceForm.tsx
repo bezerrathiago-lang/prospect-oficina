@@ -28,6 +28,7 @@ interface FormState {
   customerName: string;
   customerPhone: string;
   serviceTypeId: string;
+  serviceDescription: string;
   lastServiceDate: string;
   lastServiceMileage: string;
   currentMileage: string;
@@ -38,6 +39,7 @@ interface FormErrors {
   customerName?: string;
   customerPhone?: string;
   serviceTypeId?: string;
+  serviceDescription?: string;
   lastServiceDate?: string;
   lastServiceMileage?: string;
   currentMileage?: string;
@@ -80,11 +82,11 @@ function todayIso(): string {
   return `${year}-${month}-${day}`;
 }
 
-/** Formata data ISO para exibição DD/MM/AAAA */
+/** Formata data ISO para exibição DD/MM/YY */
 function formatDateBR(isoDate: string): string {
   if (!isoDate) return '';
   const [year, month, day] = isoDate.split('-');
-  return `${day}/${month}/${year}`;
+  return `${day}/${month}/${(year ?? '').slice(-2)}`;
 }
 
 /** Valida o formulário e retorna objeto de erros */
@@ -108,6 +110,13 @@ function validate(form: FormState): FormErrors {
   // Tipo de serviço
   if (!form.serviceTypeId) {
     errors.serviceTypeId = 'Tipo de serviço é obrigatório.';
+  }
+
+  // Descrição do serviço
+  if (!form.serviceDescription.trim()) {
+    errors.serviceDescription = 'Descrição do serviço é obrigatória.';
+  } else if (form.serviceDescription.trim().length < 3) {
+    errors.serviceDescription = 'Descrição deve ter no mínimo 3 caracteres.';
   }
 
   // Data do último serviço
@@ -164,6 +173,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
     customerName: '',
     customerPhone: '',
     serviceTypeId: '',
+    serviceDescription: '',
     lastServiceDate: '',
     lastServiceMileage: '',
     currentMileage: '',
@@ -240,6 +250,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
       customer_name: form.customerName.trim(),
       customer_phone: form.customerPhone,
       service_type_id: parseInt(form.serviceTypeId, 10),
+      service_description: form.serviceDescription.trim(),
       last_service_date: form.lastServiceDate,
       last_service_mileage: parseInt(parseMileage(form.lastServiceMileage), 10),
       current_mileage: parseInt(parseMileage(form.currentMileage), 10),
@@ -334,6 +345,33 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
         </select>
         {visibleErrors.serviceTypeId && (
           <p className="mt-1 text-xs text-red-600">{visibleErrors.serviceTypeId}</p>
+        )}
+      </div>
+
+      {/* ── Descrição do Serviço ─── */}
+      <div className="mb-4">
+        <label
+          htmlFor="serviceDescription"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Descrição do Serviço <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          id="serviceDescription"
+          rows={3}
+          value={form.serviceDescription}
+          onChange={(e) => handleChange('serviceDescription', e.target.value)}
+          onBlur={() => handleBlur('serviceDescription')}
+          placeholder="Ex.: Troca de óleo e filtro, revisão de freios"
+          maxLength={500}
+          className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y ${
+            visibleErrors.serviceDescription
+              ? 'border-red-400 bg-red-50'
+              : 'border-gray-300 bg-white'
+          }`}
+        />
+        {visibleErrors.serviceDescription && (
+          <p className="mt-1 text-xs text-red-600">{visibleErrors.serviceDescription}</p>
         )}
       </div>
 

@@ -13,6 +13,7 @@ export interface TaskItem {
   customerName: string;
   customerPhone: string;
   serviceTypeName: string;
+  serviceDescription: string;
   nextServiceDate: number; // unix timestamp (seconds)
   attemptCount: number;
   status: 'pending' | 'completed_scheduled' | 'completed_rescheduled' | 'abandoned';

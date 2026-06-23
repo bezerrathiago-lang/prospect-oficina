@@ -11,6 +11,7 @@ export interface CreateServiceRecordData {
   customer_name: string;
   customer_phone: string;
   service_type_id: number;
+  service_description: string;
   last_service_date: string;   // YYYY-MM-DD
   last_service_mileage: number;
   current_mileage: number;
@@ -30,6 +31,7 @@ export interface ServiceRecordData {
   customer_id: number;
   service_type_id: number;
   consultant_id: number;
+  service_description: string;
   last_service_date: string;
   last_service_mileage: number;
   current_mileage: number;

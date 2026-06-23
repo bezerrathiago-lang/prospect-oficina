@@ -26,22 +26,28 @@ const db = drizzle(client, { schema });
 
 // ── Service Types Seed ───────────────────────────────────────────
 
+// contactLeadDays agora representa DIAS ÚTEIS de antecedência para a tarefa
 const seedServiceTypes = [
-  { name: 'Revisão', contactLeadDays: 15 },
-  { name: 'Troca de Peças', contactLeadDays: 15 },
+  { name: 'Revisão', contactLeadDays: 5 },
+  { name: 'Troca de Peças', contactLeadDays: 5 },
 ];
 
 console.log('Seeding service types...');
 
 for (const seed of seedServiceTypes) {
-  const existing = await db
+  const [existing] = await db
     .select({ id: schema.serviceTypes.id })
     .from(schema.serviceTypes)
     .where(eq(schema.serviceTypes.name, seed.name))
     .limit(1);
 
-  if (existing.length > 0) {
-    console.log(`  [skip] ${seed.name} — already exists`);
+  if (existing) {
+    // Alinha o lead time dos tipos já existentes para o novo padrão (dias úteis)
+    await db
+      .update(schema.serviceTypes)
+      .set({ contactLeadDays: seed.contactLeadDays, updatedAt: new Date() })
+      .where(eq(schema.serviceTypes.id, existing.id));
+    console.log(`  [upd]  ${seed.name} → ${seed.contactLeadDays} dias úteis`);
     continue;
   }
 
@@ -51,7 +57,7 @@ for (const seed of seedServiceTypes) {
     isActive: 1,
   });
 
-  console.log(`  [ok]   ${seed.name} (${seed.contactLeadDays} dias)`);
+  console.log(`  [ok]   ${seed.name} (${seed.contactLeadDays} dias úteis)`);
 }
 
 // ── Users Seed ───────────────────────────────────────────────────

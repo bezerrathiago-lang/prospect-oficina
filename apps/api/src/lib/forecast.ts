@@ -70,3 +70,20 @@ export function calculateNextServiceDate(input: ForecastInput): ForecastResult {
 
   return { dailyAverageKm, daysUntilNext, nextServiceDate };
 }
+
+/**
+ * Subtrai N dias úteis (seg–sex) de uma data, ignorando sábados e domingos.
+ * Usado para agendar a tarefa de prospecção X dias úteis antes do serviço previsto.
+ */
+export function subtractBusinessDays(date: Date, businessDays: number): Date {
+  const result = new Date(date);
+  let remaining = businessDays;
+  while (remaining > 0) {
+    result.setDate(result.getDate() - 1);
+    const dayOfWeek = result.getDay(); // 0 = domingo, 6 = sábado
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      remaining -= 1;
+    }
+  }
+  return result;
+}

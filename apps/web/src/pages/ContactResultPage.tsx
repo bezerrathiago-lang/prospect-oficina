@@ -28,6 +28,7 @@ type SubFlow =
   | 'scheduled'
   | 'not_reached'
   | 'rescheduled'
+  | 'remeasure'
   | 'abandoned';
 
 interface Toast {
@@ -40,7 +41,7 @@ interface Toast {
 /** Formata unix timestamp (seconds) para DD/MM/AAAA */
 function formatDate(ts: number): string {
   const d = new Date(ts * 1000);
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
 }
 
 /** Retorna a data de amanhã no formato YYYY-MM-DD */
@@ -77,6 +78,9 @@ function ContextCard({ task }: { task: TaskDetail }) {
         <span>{task.serviceTypeName}</span>
         <span>Próximo serviço: {formatDate(task.nextServiceDate)}</span>
       </div>
+      {task.serviceDescription && (
+        <p className="mt-1 text-sm text-gray-500">{task.serviceDescription}</p>
+      )}
       <div className="mt-2">
         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
           {task.attemptCount === 0
@@ -198,10 +202,12 @@ function ScheduledView({
 
 function NotReachedView({
   onReschedule,
+  onRemeasure,
   onAbandon,
   onBack,
 }: {
   onReschedule: () => void;
+  onRemeasure: () => void;
   onAbandon: () => void;
   onBack: () => void;
 }) {
@@ -223,6 +229,18 @@ function NotReachedView({
 
       <button
         type="button"
+        onClick={onRemeasure}
+        className="w-full rounded-xl border-2 py-4 px-4 text-left font-semibold text-sm transition-colors hover:bg-blue-50 active:bg-blue-100"
+        style={{ borderColor: '#2563EB', color: '#2563EB' }}
+      >
+        <span className="text-base">Não chegou na km do serviço</span>
+        <p className="font-normal text-blue-600 text-xs mt-0.5">
+          Atualizar a km de hoje e recalcular a próxima data
+        </p>
+      </button>
+
+      <button
+        type="button"
         onClick={onAbandon}
         className="w-full rounded-xl border-2 border-gray-300 py-4 px-4 text-left font-semibold text-sm text-gray-700 transition-colors hover:bg-gray-50 active:bg-gray-100"
       >
@@ -239,6 +257,104 @@ function NotReachedView({
       >
         ← Voltar
       </button>
+    </div>
+  );
+}
+
+// ── Sub-tela: Não chegou na km — atualizar leitura e recalcular ──
+
+function RemeasureView({
+  onBack,
+  onConfirm,
+  isPending,
+}: {
+  onBack: () => void;
+  onConfirm: (newMileage: number) => void;
+  isPending: boolean;
+}) {
+  const [mileage, setMileage] = useState('');
+
+  const todayLabel = new Date().toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+  });
+
+  const digits = mileage.replace(/\D/g, '');
+  const mileageNum = digits ? parseInt(digits, 10) : 0;
+  const canConfirm = mileageNum > 0 && !isPending;
+
+  function handleChange(raw: string) {
+    const d = raw.replace(/\D/g, '');
+    setMileage(d ? parseInt(d, 10).toLocaleString('pt-BR') : '');
+  }
+
+  return (
+    <div className="flex flex-col gap-4 mt-2">
+      <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-800">
+        Informe a quilometragem medida hoje. O sistema vai recalcular a média
+        diária com as duas últimas leituras e reagendar a próxima ligação.
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700" htmlFor="remeasure-mileage">
+          Km atual da moto (hoje)
+        </label>
+        <input
+          id="remeasure-mileage"
+          type="text"
+          inputMode="numeric"
+          value={mileage}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder="Ex.: 15.800"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-gray-600" htmlFor="remeasure-today">
+          Data da medição
+        </label>
+        <input
+          id="remeasure-today"
+          type="text"
+          value={todayLabel}
+          readOnly
+          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
+        />
+        <p className="text-xs text-gray-400">Preenchida automaticamente (hoje)</p>
+      </div>
+
+      <div className="flex flex-col gap-3 pt-2">
+        <button
+          type="button"
+          onClick={() => onConfirm(mileageNum)}
+          disabled={!canConfirm}
+          className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-300"
+          style={{ backgroundColor: canConfirm ? '#2563EB' : undefined }}
+        >
+          {isPending ? (
+            <span className="flex items-center justify-center gap-2">
+              <span
+                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                aria-hidden="true"
+              />
+              Recalculando...
+            </span>
+          ) : (
+            'Atualizar e Recalcular'
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isPending}
+          className="w-full rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+        >
+          ← Voltar
+        </button>
+      </div>
     </div>
   );
 }
@@ -354,6 +470,8 @@ export default function ContactResultPage() {
       setToast({ message: `Agendamento registrado!`, color: 'green' });
     } else if (result.outcome === 'rescheduled') {
       setToast({ message: 'Novo contato agendado', color: 'blue' });
+    } else if (result.outcome === 'remeasured') {
+      setToast({ message: 'Km atualizada e próximo contato recalculado', color: 'blue' });
     } else {
       setToast({ message: 'Prospecção encerrada', color: 'gray' });
     }
@@ -375,6 +493,14 @@ export default function ContactResultPage() {
       task_id: taskId,
       outcome: 'rescheduled',
       rescheduled_date: rescheduledDate,
+    });
+  }
+
+  function handleRemeasureConfirm(newMileage: number) {
+    mutation.mutate({
+      task_id: taskId,
+      outcome: 'remeasured',
+      new_mileage: newMileage,
     });
   }
 
@@ -434,6 +560,7 @@ export default function ContactResultPage() {
     scheduled: 'Agendamento Confirmado',
     not_reached: 'Não Conseguiu Agendar',
     rescheduled: 'Reagendar Contato',
+    remeasure: 'Atualizar Quilometragem',
     abandoned: 'Encerrar Prospecção',
   };
 
@@ -476,6 +603,7 @@ export default function ContactResultPage() {
         {subFlow === 'not_reached' && (
           <NotReachedView
             onReschedule={() => setSubFlow('rescheduled')}
+            onRemeasure={() => setSubFlow('remeasure')}
             onAbandon={() => setSubFlow('abandoned')}
             onBack={() => setSubFlow('select')}
           />
@@ -485,6 +613,14 @@ export default function ContactResultPage() {
           <RescheduledView
             onBack={() => setSubFlow('not_reached')}
             onConfirm={handleRescheduledConfirm}
+            isPending={mutation.isPending}
+          />
+        )}
+
+        {subFlow === 'remeasure' && (
+          <RemeasureView
+            onBack={() => setSubFlow('not_reached')}
+            onConfirm={handleRemeasureConfirm}
             isPending={mutation.isPending}
           />
         )}

@@ -20,6 +20,11 @@ export const CreateServiceRecordSchema = z
       .number({ error: 'Tipo de serviço é obrigatório.' })
       .int({ message: 'Tipo de serviço inválido.' })
       .positive({ message: 'Tipo de serviço inválido.' }),
+    service_description: z
+      .string({ error: 'Descrição do serviço é obrigatória.' })
+      .trim()
+      .min(3, { message: 'Descrição deve ter no mínimo 3 caracteres.' })
+      .max(500, { message: 'Descrição deve ter no máximo 500 caracteres.' }),
     last_service_date: z
       .string({ error: 'Data do último serviço é obrigatória.' })
       .regex(/^\d{4}-\d{2}-\d{2}$/, {
@@ -90,6 +95,7 @@ export const ServiceRecordResponseSchema = z.object({
   customer_id: z.number(),
   service_type_id: z.number(),
   consultant_id: z.number(),
+  service_description: z.string(),
   last_service_date: z.string(),
   last_service_mileage: z.number(),
   current_mileage: z.number(),

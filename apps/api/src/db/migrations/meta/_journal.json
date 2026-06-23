@@ -43,6 +43,13 @@
       "when": 1781622314814,
       "tag": "0005_black_the_fallen",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782219523344,
+      "tag": "0006_volatile_eternals",
+      "breakpoints": true
     }
   ]
 }

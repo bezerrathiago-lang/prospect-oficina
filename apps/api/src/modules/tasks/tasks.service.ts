@@ -16,6 +16,7 @@ export interface TaskDetail {
   customerName: string;
   customerPhone: string;
   serviceTypeName: string;
+  serviceDescription: string;
   nextServiceDate: number; // unix timestamp (seconds)
   scheduledDate: number;   // unix timestamp (seconds)
   attemptCount: number;
@@ -30,6 +31,7 @@ export interface TaskItem {
   customerName: string;
   customerPhone: string;
   serviceTypeName: string;
+  serviceDescription: string;
   nextServiceDate: number; // unix timestamp (seconds)
   attemptCount: number;
   status: string;
@@ -64,6 +66,7 @@ export async function getById(
       customerName: customers.name,
       customerPhone: customers.phone,
       serviceTypeName: serviceTypes.name,
+      serviceDescription: serviceRecords.serviceDescription,
       nextServiceDate: serviceRecords.nextServiceDate,
       scheduledDate: tasks.scheduledDate,
       attemptCount: tasks.attemptCount,
@@ -89,6 +92,7 @@ export async function getById(
     customerName: row.customerName,
     customerPhone: row.customerPhone,
     serviceTypeName: row.serviceTypeName,
+    serviceDescription: row.serviceDescription,
     nextServiceDate: toUnixSeconds(row.nextServiceDate),
     scheduledDate: toUnixSeconds(row.scheduledDate),
     attemptCount: row.attemptCount,
@@ -123,6 +127,7 @@ export async function listByDate(
       customerName: customers.name,
       customerPhone: customers.phone,
       serviceTypeName: serviceTypes.name,
+      serviceDescription: serviceRecords.serviceDescription,
       nextServiceDate: serviceRecords.nextServiceDate,
       attemptCount: tasks.attemptCount,
       status: tasks.status,
@@ -145,6 +150,7 @@ export async function listByDate(
     customerName: row.customerName,
     customerPhone: row.customerPhone,
     serviceTypeName: row.serviceTypeName,
+    serviceDescription: row.serviceDescription,
     // nextServiceDate pode ser Date (mode: timestamp) ou number — normalizar para unix seconds
     nextServiceDate:
       row.nextServiceDate instanceof Date

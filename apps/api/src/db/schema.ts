@@ -46,7 +46,8 @@ export const users = sqliteTable('users', {
 export const serviceTypes = sqliteTable('service_types', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
-  contactLeadDays: integer('contact_lead_days').notNull().default(15),
+  // Antecedência em DIAS ÚTEIS para criar a tarefa de prospecção antes do serviço previsto
+  contactLeadDays: integer('contact_lead_days').notNull().default(5),
   isActive: integer('is_active').notNull().default(1),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
@@ -87,9 +88,13 @@ export const serviceRecords = sqliteTable('service_records', {
   consultantId: integer('consultant_id', { mode: 'number' })
     .notNull()
     .references(() => users.id),
+  // Descrição livre do serviço informada pelo consultor (ajuste: aparece na tarefa futura)
+  serviceDescription: text('service_description').notNull().default(''),
   lastServiceDate: integer('last_service_date', { mode: 'timestamp' }).notNull(),
   lastServiceMileage: integer('last_service_mileage').notNull(),
   currentMileage: integer('current_mileage').notNull(),
+  // Data em que a quilometragem atual foi medida (base para recálculo "não chegou na km")
+  currentMileageDate: integer('current_mileage_date', { mode: 'timestamp' }),
   nextServiceMileage: integer('next_service_mileage').notNull(),
   nextServiceDate: integer('next_service_date', { mode: 'timestamp' }).notNull(),
   dailyAverageKm: real('daily_average_km').notNull(),
@@ -155,10 +160,12 @@ export const contactAttempts = sqliteTable('contact_attempts', {
     .notNull()
     .references(() => users.id),
   outcome: text('outcome', {
-    enum: ['scheduled', 'rescheduled', 'abandoned'],
+    enum: ['scheduled', 'rescheduled', 'abandoned', 'remeasured'],
   }).notNull(),
   appointmentDate: integer('appointment_date', { mode: 'timestamp' }),
   rescheduledDate: integer('rescheduled_date', { mode: 'timestamp' }),
+  // Nova quilometragem informada quando o cliente "não chegou na km" (outcome 'remeasured')
+  newMileage: integer('new_mileage'),
   nextTaskId: integer('next_task_id', { mode: 'number' }).references(
     () => tasks.id,
   ),

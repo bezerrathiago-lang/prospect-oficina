@@ -21,9 +21,10 @@ import {
 
 export interface ContactAttemptDetail {
   id: number;
-  outcome: 'scheduled' | 'rescheduled' | 'abandoned';
+  outcome: 'scheduled' | 'rescheduled' | 'abandoned' | 'remeasured';
   appointment_date: number | null;   // unix timestamp seconds
   rescheduled_date: number | null;   // unix timestamp seconds
+  new_mileage: number | null;        // km informada no recálculo "não chegou na km"
   abandonment_reason: {
     label: string;
     is_other: boolean;
@@ -44,6 +45,7 @@ export interface TaskDetail {
 export interface ServiceRecordDetail {
   id: number;
   service_type_name: string;
+  service_description: string;
   last_service_date: number;        // unix timestamp seconds
   last_service_mileage: number;
   current_mileage: number;
@@ -108,6 +110,7 @@ export async function getById(customerId: number): Promise<CustomerDetail> {
     .select({
       id: serviceRecords.id,
       serviceTypeName: serviceTypes.name,
+      serviceDescription: serviceRecords.serviceDescription,
       lastServiceDate: serviceRecords.lastServiceDate,
       lastServiceMileage: serviceRecords.lastServiceMileage,
       currentMileage: serviceRecords.currentMileage,
@@ -157,6 +160,7 @@ export async function getById(customerId: number): Promise<CustomerDetail> {
         outcome: contactAttempts.outcome,
         appointmentDate: contactAttempts.appointmentDate,
         rescheduledDate: contactAttempts.rescheduledDate,
+        newMileage: contactAttempts.newMileage,
         nextTaskId: contactAttempts.nextTaskId,
         abandonmentReasonId: contactAttempts.abandonmentReasonId,
         abandonmentNotes: contactAttempts.abandonmentNotes,
@@ -204,6 +208,7 @@ export async function getById(customerId: number): Promise<CustomerDetail> {
         outcome: a.outcome,
         appointment_date: toUnixSeconds(a.appointmentDate as Date | number | null),
         rescheduled_date: toUnixSeconds(a.rescheduledDate as Date | number | null),
+        new_mileage: a.newMileage ?? null,
         abandonment_reason:
           a.outcome === 'abandoned' && a.reasonLabel != null
             ? { label: a.reasonLabel, is_other: (a.reasonIsOther ?? 0) === 1 }
@@ -225,6 +230,7 @@ export async function getById(customerId: number): Promise<CustomerDetail> {
     return {
       id: rec.id,
       service_type_name: rec.serviceTypeName,
+      service_description: rec.serviceDescription,
       last_service_date: toUnixSecondsRequired(rec.lastServiceDate as Date | number),
       last_service_mileage: rec.lastServiceMileage,
       current_mileage: rec.currentMileage,

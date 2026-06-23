@@ -9,9 +9,10 @@ import { api } from './api.js';
 
 export interface ContactAttemptDetail {
   id: number;
-  outcome: 'scheduled' | 'rescheduled' | 'abandoned';
+  outcome: 'scheduled' | 'rescheduled' | 'abandoned' | 'remeasured';
   appointment_date: number | null;   // unix timestamp seconds
   rescheduled_date: number | null;   // unix timestamp seconds
+  new_mileage: number | null;        // km informada no recálculo "não chegou na km"
   abandonment_reason: {
     label: string;
     is_other: boolean;
@@ -32,6 +33,7 @@ export interface TaskDetail {
 export interface ServiceRecordDetail {
   id: number;
   service_type_name: string;
+  service_description: string;
   last_service_date: number;        // unix timestamp seconds
   last_service_mileage: number;
   current_mileage: number;

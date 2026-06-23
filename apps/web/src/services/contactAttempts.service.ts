@@ -13,6 +13,7 @@ export interface TaskDetail {
   customerName: string;
   customerPhone: string;
   serviceTypeName: string;
+  serviceDescription: string;
   nextServiceDate: number; // unix timestamp (seconds)
   scheduledDate: number;   // unix timestamp (seconds)
   attemptCount: number;
@@ -38,10 +39,17 @@ export interface RegisterAbandonedData {
   abandonment_notes?: string;
 }
 
+export interface RegisterRemeasuredData {
+  task_id: number;
+  outcome: 'remeasured';
+  new_mileage: number;
+}
+
 export type RegisterAttemptData =
   | RegisterScheduledData
   | RegisterRescheduledData
-  | RegisterAbandonedData;
+  | RegisterAbandonedData
+  | RegisterRemeasuredData;
 
 export interface ContactAttemptResult {
   id: number;

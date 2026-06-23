@@ -7,7 +7,7 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { customers, serviceRecords, tasks, serviceTypes } from '../../db/schema.js';
-import { calculateNextServiceDate } from '../../lib/forecast.js';
+import { calculateNextServiceDate, subtractBusinessDays } from '../../lib/forecast.js';
 import type {
   CreateServiceRecordBody,
   CustomerResponse,
@@ -72,9 +72,8 @@ export async function create(
     today,
   });
 
-  // Calcular scheduled_date: next_service_date − contact_lead_days
-  const scheduledDate = new Date(forecast.nextServiceDate);
-  scheduledDate.setDate(scheduledDate.getDate() - contactLeadDays);
+  // Calcular scheduled_date: contact_lead_days DIAS ÚTEIS antes do serviço previsto
+  const scheduledDate = subtractBusinessDays(forecast.nextServiceDate, contactLeadDays);
 
   // 3–5. Executar em transação
   // libsql não suporta drizzle transactions nativamente; usamos batch ou sequencial
@@ -124,9 +123,11 @@ export async function create(
       customerId: customerRow.id,
       serviceTypeId: data.service_type_id,
       consultantId,
+      serviceDescription: data.service_description,
       lastServiceDate,
       lastServiceMileage: data.last_service_mileage,
       currentMileage: data.current_mileage,
+      currentMileageDate: today,
       nextServiceMileage: data.next_service_mileage,
       nextServiceDate: forecast.nextServiceDate,
       dailyAverageKm: forecast.dailyAverageKm,
@@ -168,6 +169,7 @@ export async function create(
     customer_id: serviceRecordRow.customerId,
     service_type_id: serviceRecordRow.serviceTypeId,
     consultant_id: serviceRecordRow.consultantId,
+    service_description: serviceRecordRow.serviceDescription,
     last_service_date: toTimestamp(serviceRecordRow.lastServiceDate),
     last_service_mileage: serviceRecordRow.lastServiceMileage,
     current_mileage: serviceRecordRow.currentMileage,

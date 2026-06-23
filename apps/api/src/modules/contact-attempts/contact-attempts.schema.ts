@@ -62,15 +62,31 @@ const AbandonedBody = z.object({
   abandonment_notes: z.string().optional(),
 });
 
+// "Não chegou na km": consultor informa a nova km medida hoje;
+// o sistema recalcula a previsão e reagenda a tarefa automaticamente.
+const RemeasuredBody = z.object({
+  task_id: z
+    .number({ error: 'task_id é obrigatório.' })
+    .int()
+    .positive(),
+  outcome: z.literal('remeasured'),
+  new_mileage: z
+    .number({ error: 'Quilometragem atual é obrigatória.' })
+    .int({ message: 'Km deve ser um número inteiro.' })
+    .positive({ message: 'Km deve ser um número positivo.' }),
+});
+
 // ── Union discriminada ───────────────────────────────────────────
 
 export const RegisterContactAttemptSchema = z.discriminatedUnion('outcome', [
   ScheduledBody,
   RescheduledBody,
   AbandonedBody,
+  RemeasuredBody,
 ]);
 
 export type RegisterContactAttemptBody = z.infer<typeof RegisterContactAttemptSchema>;
 export type ScheduledBody = z.infer<typeof ScheduledBody>;
 export type RescheduledBody = z.infer<typeof RescheduledBody>;
 export type AbandonedBody = z.infer<typeof AbandonedBody>;
+export type RemeasuredBody = z.infer<typeof RemeasuredBody>;

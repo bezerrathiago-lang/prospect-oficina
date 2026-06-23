@@ -20,7 +20,7 @@ function formatDate(timestamp: number): string {
   const date = new Date(timestamp * 1000);
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
+  const year = String(date.getFullYear()).slice(-2);
   return `${day}/${month}/${year}`;
 }
 
@@ -53,6 +53,9 @@ export default function ServiceRecordCard({
           <p className="font-semibold text-gray-900 text-sm">
             {record.service_type_name}
           </p>
+          {record.service_description && (
+            <p className="text-xs text-gray-600 mt-0.5">{record.service_description}</p>
+          )}
           <p className="text-xs text-gray-500 mt-0.5">
             Serviço em {formatDate(record.last_service_date)} • {formatKm(record.last_service_mileage)}
           </p>
