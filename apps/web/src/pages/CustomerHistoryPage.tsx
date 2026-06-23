@@ -25,7 +25,7 @@ interface StatusBadgeConfig {
 function getStatusBadge(status: ProspectionStatus): StatusBadgeConfig {
   switch (status) {
     case 'pending':
-      return { label: 'Prospecção Ativa', bgColor: '#FED7AA', textColor: '#C2410C' };
+      return { label: 'Prospecção Ativa', bgColor: '#FECACA', textColor: '#B91C1C' };
     case 'completed_scheduled':
       return { label: 'Agendada', bgColor: '#DCFCE7', textColor: '#15803D' };
     case 'completed_rescheduled':
@@ -57,7 +57,7 @@ function CustomerSearchPage() {
           placeholder="Buscar cliente..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
           autoComplete="off"
           aria-label="Buscar cliente por nome ou telefone"
         />

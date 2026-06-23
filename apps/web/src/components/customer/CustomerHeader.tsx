@@ -27,7 +27,7 @@ interface BadgeConfig {
 function getStatusBadge(status: ProspectionStatus): BadgeConfig {
   switch (status) {
     case 'pending':
-      return { label: 'Prospecção Ativa', bgColor: '#FED7AA', textColor: '#C2410C' };
+      return { label: 'Prospecção Ativa', bgColor: '#FECACA', textColor: '#B91C1C' };
     case 'completed_scheduled':
       return { label: 'Agendada', bgColor: '#DCFCE7', textColor: '#15803D' };
     case 'completed_rescheduled':

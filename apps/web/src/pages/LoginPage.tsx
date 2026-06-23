@@ -69,7 +69,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo / título */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-orange tracking-tight">
+          <h1 className="text-3xl font-bold text-brand-red tracking-tight">
             ProspectMoto
           </h1>
           <p className="mt-1 text-gray-400 text-sm">
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 placeholder="seu@email.com"
                 className="w-full rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500
                            px-4 py-2.5 text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent
+                           focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent
                            transition-colors"
                 disabled={isLoading}
               />
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 className="w-full rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500
                            px-4 py-2.5 text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent
+                           focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent
                            transition-colors"
                 disabled={isLoading}
               />
@@ -148,9 +148,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-brand-orange hover:bg-orange-500 disabled:opacity-60 disabled:cursor-not-allowed
+              className="w-full bg-brand-red hover:bg-red-500 disabled:opacity-60 disabled:cursor-not-allowed
                          text-white font-semibold rounded-lg px-4 py-2.5 text-sm
-                         transition-colors focus:outline-none focus:ring-2 focus:ring-brand-orange focus:ring-offset-2 focus:ring-offset-gray-900"
+                         transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               {isLoading ? 'Entrando...' : 'Entrar'}
             </button>

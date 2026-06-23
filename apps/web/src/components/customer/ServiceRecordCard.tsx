@@ -45,7 +45,7 @@ export default function ServiceRecordCard({
       {/* Cabeçalho — sempre visível, clicável para toggle */}
       <button
         type="button"
-        className="w-full text-left px-4 py-3 flex items-center justify-between transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-400"
+        className="w-full text-left px-4 py-3 flex items-center justify-between transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-400"
         onClick={() => setExpanded((prev) => !prev)}
         aria-expanded={expanded}
       >

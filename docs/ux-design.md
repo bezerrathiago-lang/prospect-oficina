@@ -53,7 +53,7 @@ A tela principal é um smartphone na mão do consultor. Touch targets mínimos d
 
 ### P7 — Consistência Reduz Carga Cognitiva
 
-Ações primárias sempre na mesma posição (botão principal no rodapé fixo). Cores com significado fixo: laranja = ação primária, verde = sucesso/concluído, vermelho = alerta/desistência, cinza = inativo/secundário. Nunca usar vermelho para ação de confirmação positiva.
+Ações primárias sempre na mesma posição (botão principal no rodapé fixo). Cores com significado fixo: vermelho = marca/ação primária (identidade Cirne Motos), verde = sucesso/concluído, âmbar = alerta, cinza = inativo/secundário. Ações destrutivas (desistência) também usam vermelho, porém sempre acompanhadas de aviso âmbar e confirmação explícita para diferenciá-las das ações primárias.
 
 ---
 
@@ -244,7 +244,7 @@ Ações primárias sempre na mesma posição (botão principal no rodapé fixo).
 │  └─────────────────────────────────────┘│
 │                                         │
 │─────────────────────────────────────────│
-│          [Salvar Atendimento]           │  Botão fixo no rodapé, laranja
+│          [Salvar Atendimento]           │  Botão fixo no rodapé, vermelho
 └─────────────────────────────────────────┘
 ```
 
@@ -321,7 +321,7 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 │  O que deseja fazer?                    │
 │                                         │
 │  ┌─────────────────────────────────────┐│
-│  │ 📅  Reagendar contato               ││  Botão laranja/primário
+│  │ 📅  Reagendar contato               ││  Botão vermelho/primário
 │  └─────────────────────────────────────┘│
 │                                         │
 │  ┌─────────────────────────────────────┐│
@@ -351,7 +351,7 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 │    como "sem contato"                   │
 │                                         │
 │─────────────────────────────────────────│
-│         [Confirmar Reagendamento]       │  Botão laranja, fixo no rodapé
+│         [Confirmar Reagendamento]       │  Botão vermelho, fixo no rodapé
 └─────────────────────────────────────────┘
 ```
 
@@ -433,7 +433,7 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 
 **Notas estruturais:**
 - Serviço mais recente aparece expandido; anteriores colapsados (tap para expandir)
-- Status da prospecção usa badge colorido: Ativa (laranja), Agendada (verde), Encerrada (cinza), Desistência (vermelho)
+- Status da prospecção usa badge colorido: Ativa (vermelho), Agendada (verde), Encerrada (cinza), Desistência (vermelho)
 - Acesso via: tap no nome do cliente na lista de tarefas
 
 ---
@@ -542,7 +542,7 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 | Tarefa atrasada | Dias anteriores | Banner âmbar "ATRASADA" no topo do card |
 | Tarefa concluída | Agendada | Fundo verde-claro (#F0FDF4), texto verde, ícone check |
 | Tarefa concluída | Reagendada | Fundo cinza-claro (#F9FAFB), texto cinza |
-| Botão "Registrar Resultado" | Padrão | Laranja (#F97316), texto branco, bordas arredondadas 8px |
+| Botão "Registrar Resultado" | Padrão | Vermelho (#DC2626), texto branco, bordas arredondadas 8px |
 | Telefone | Tap | Abre discadora nativa (link `tel:`) |
 | Navegação de data | Tap anterior/próximo | Slide suave para novo dia, spinner se carregando |
 | Estado vazio | Sem tarefas | Ilustração simples (clipboard vazio) + texto amigável |
@@ -552,14 +552,14 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 | Elemento | Estado | Comportamento |
 |----------|--------|---------------|
 | Campo texto | Vazio | Placeholder cinza-claro |
-| Campo texto | Foco | Borda laranja (#F97316), label sobe (floating label) |
+| Campo texto | Foco | Borda vermelho (#DC2626), label sobe (floating label) |
 | Campo texto | Preenchido | Borda cinza-escuro |
 | Campo texto | Erro | Borda vermelha + mensagem de erro inline abaixo |
 | Dropdown serviço | Após seleção | Exibe card de informação "Próximo em ~X dias ou Y km" |
 | Preview previsão | Campos incompletos | Oculto |
 | Preview previsão | Campos suficientes | Fade in com data calculada |
 | Botão Salvar | Formulário inválido | Desabilitado, opacidade 50% |
-| Botão Salvar | Formulário válido | Habilitado, laranja sólido |
+| Botão Salvar | Formulário válido | Habilitado, vermelho sólido |
 | Botão Salvar | Loading | Spinner inline, texto "Salvando..." |
 | Botão Salvar | Sucesso | Toast verde no topo por 3 segundos + redirect |
 
@@ -574,7 +574,7 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 | Transição entre sub-telas | Tap em botão | Slide da direita para a esquerda (navegação progressiva) |
 | Botão Voltar | Tap | Slide da esquerda para a direita (retorno) |
 | Date picker "reagendar" | Validação | Não permite data anterior a amanhã |
-| Radio buttons (motivo) | Seleção | Checkmark laranja, label em negrito |
+| Radio buttons (motivo) | Seleção | Checkmark vermelho, label em negrito |
 | Botão "Confirmar Desistência" | Sem motivo selecionado | Desabilitado, cinza |
 | Botão "Confirmar Desistência" | Motivo selecionado | Habilitado, vermelho (#DC2626) |
 | Todos confirmações | Loading | Spinner + label "Registrando..." |
@@ -586,7 +586,7 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 |----------|--------|---------------|
 | Card de serviço | Padrão (mais recente) | Expandido |
 | Card de serviço | Anteriores | Colapsado, tap para expandir com animação |
-| Badge de status | Ativa | Fundo laranja-claro, texto laranja-escuro |
+| Badge de status | Ativa | Fundo vermelho-claro, texto vermelho-escuro |
 | Badge de status | Agendada | Fundo verde-claro, texto verde-escuro |
 | Badge de status | Encerrada/Desistência | Fundo cinza-claro, texto cinza-escuro |
 | Tentativa com desistência | Exibição | Ícone vermelho + motivo em texto |
@@ -637,9 +637,9 @@ Após confirmação: toast verde "Agendamento registrado para 20 jun!" + animaç
 
 ```
 -- Cores Primárias --
---color-primary-500:    #F97316  /* Laranja — ação principal, CTA */
---color-primary-600:    #EA6B0A  /* Laranja escuro — hover/press */
---color-primary-50:     #FFF7ED  /* Laranja muito claro — fundo informativo */
+--color-primary-500:    #DC2626  /* Vermelho — ação principal, CTA */
+--color-primary-600:    #B91C1C  /* Vermelho escuro — hover/press */
+--color-primary-50:     #FEF2F2  /* Vermelho muito claro — fundo informativo */
 
 -- Cores de Status --
 --color-success-500:    #22C55E  /* Verde — agendado, confirmado */
@@ -808,7 +808,7 @@ Saída: fade-out, 200ms ease-in, após 3s
 
 | Critério | Implementação |
 |----------|---------------|
-| Contraste de texto | Mín. 4.5:1 para texto normal, 3:1 para texto grande (verificado para laranja #F97316 sobre branco) |
+| Contraste de texto | Mín. 4.5:1 para texto normal, 3:1 para texto grande (verificado para vermelho #DC2626 sobre branco) |
 | Rótulos de formulário | Todos os inputs com `<label>` associado via `for`/`id` |
 | Mensagens de erro | `role="alert"` para anúncio automático por leitores de tela |
 | Botões | `aria-label` quando ícone sem texto visível |

@@ -77,7 +77,7 @@ export default function TaskCard({ task, isOverdue = false }: TaskCardProps) {
       {/* Nome do cliente — link para histórico */}
       <Link
         to={`/historico/${task.customerId}`}
-        className="font-bold text-gray-900 text-base underline decoration-dotted hover:text-orange-600 transition-colors"
+        className="font-bold text-gray-900 text-base underline decoration-dotted hover:text-red-600 transition-colors"
       >
         {task.customerName}
       </Link>

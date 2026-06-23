@@ -39,7 +39,7 @@ export default function ServiceTypeItem({ serviceType, onEdit }: ServiceTypeItem
       <button
         type="button"
         onClick={() => onEdit(serviceType)}
-        className="ml-3 shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1"
+        className="ml-3 shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
         aria-label={`Editar ${serviceType.name}`}
       >
         Editar

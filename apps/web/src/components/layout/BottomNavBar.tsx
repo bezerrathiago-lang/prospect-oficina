@@ -4,7 +4,7 @@
  * - Visível apenas em telas < 768px (md:hidden)
  * - Altura fixa 64px (--spacing-16 conforme ux-design.md)
  * - 4 abas: Hoje, + Novo, Histórico, Menu (Configurações)
- * - Aba ativa destacada com cor primária laranja (#F97316)
+ * - Aba ativa destacada com cor primária laranja (#DC2626)
  * - Safe area respeitada via padding-bottom (iOS home indicator)
  */
 import { NavLink } from 'react-router-dom';
@@ -45,7 +45,7 @@ export default function BottomNavBar() {
               'text-xs font-medium transition-colors',
               'min-h-[44px]', // touch target WCAG 2.5.5
               isActive
-                ? 'text-brand-orange'
+                ? 'text-brand-red'
                 : 'text-gray-500 hover:text-gray-700',
             ].join(' ')
           }
@@ -70,7 +70,7 @@ export default function BottomNavBar() {
               {isActive && (
                 <span
                   className="absolute top-0 left-1/2 -translate-x-1/2
-                             w-8 h-0.5 bg-brand-orange rounded-full"
+                             w-8 h-0.5 bg-brand-red rounded-full"
                   aria-hidden="true"
                 />
               )}

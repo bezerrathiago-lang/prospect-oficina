@@ -212,11 +212,11 @@ function NotReachedView({
       <button
         type="button"
         onClick={onReschedule}
-        className="w-full rounded-xl border-2 py-4 px-4 text-left font-semibold text-sm transition-colors hover:bg-orange-50 active:bg-orange-100"
-        style={{ borderColor: '#F97316', color: '#EA580C' }}
+        className="w-full rounded-xl border-2 py-4 px-4 text-left font-semibold text-sm transition-colors hover:bg-red-50 active:bg-red-100"
+        style={{ borderColor: '#DC2626', color: '#DC2626' }}
       >
         <span className="text-base">Reagendar contato</span>
-        <p className="font-normal text-orange-600 text-xs mt-0.5">
+        <p className="font-normal text-red-600 text-xs mt-0.5">
           Definir nova data para tentar de novo
         </p>
       </button>
@@ -275,7 +275,7 @@ function RescheduledView({
           value={date}
           min={tomorrow}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
         />
         {date.length > 0 && date < tomorrow && (
           <p className="text-xs text-red-500">A nova data deve ser a partir de amanhã</p>
@@ -288,7 +288,7 @@ function RescheduledView({
           onClick={() => onConfirm(date)}
           disabled={!canConfirm}
           className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-300"
-          style={{ backgroundColor: canConfirm ? '#F97316' : undefined }}
+          style={{ backgroundColor: canConfirm ? '#DC2626' : undefined }}
         >
           {isPending ? (
             <span className="flex items-center justify-center gap-2">

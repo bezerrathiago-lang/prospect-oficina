@@ -49,7 +49,7 @@ export default function Sidebar() {
     >
       {/* Logo / cabeçalho */}
       <div className="px-5 py-5 border-b border-gray-100">
-        <span className="text-lg font-bold text-brand-orange tracking-tight">
+        <span className="text-lg font-bold text-brand-red tracking-tight">
           ProspectMoto
         </span>
       </div>
@@ -66,7 +66,7 @@ export default function Sidebar() {
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg',
                 'text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-orange-50 text-brand-orange'
+                  ? 'bg-red-50 text-brand-red'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
               ].join(' ')
             }
@@ -87,7 +87,7 @@ export default function Sidebar() {
               {user.name}
             </p>
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
-            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-orange-50 text-brand-orange capitalize">
+            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-brand-red capitalize">
               {user.role === 'consultant' ? 'Consultor' : 'Gerente'}
             </span>
           </div>

@@ -188,7 +188,7 @@ export default function ServiceTypeSheet({
                 'border bg-white text-gray-900 placeholder-gray-400',
                 touched.name && errors.name
                   ? 'border-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:border-orange-500',
+                  : 'border-gray-300 focus:border-red-500',
               ].join(' ')}
               aria-describedby={errors.name ? 'name-error' : undefined}
               aria-invalid={Boolean(touched.name && errors.name)}
@@ -226,7 +226,7 @@ export default function ServiceTypeSheet({
                 'border bg-white text-gray-900 placeholder-gray-400',
                 touched.contact_lead_days && errors.contact_lead_days
                   ? 'border-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:border-orange-500',
+                  : 'border-gray-300 focus:border-red-500',
               ].join(' ')}
               aria-describedby={errors.contact_lead_days ? 'days-error' : undefined}
               aria-invalid={Boolean(touched.contact_lead_days && errors.contact_lead_days)}
@@ -292,7 +292,7 @@ export default function ServiceTypeSheet({
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 rounded-lg bg-orange-500 py-3 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-red-500 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
             >
               {isSaving ? 'Salvando...' : 'Salvar'}
             </button>
