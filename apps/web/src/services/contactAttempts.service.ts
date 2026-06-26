@@ -1,9 +1,7 @@
 /**
- * Serviço HTTP para tentativas de contato
- *
- * Utiliza o cliente axios configurado em api.ts (com interceptors de auth).
+ * Serviço de tentativas de contato — Supabase (RPC register_contact_attempt)
  */
-import { api } from './api.js';
+import { supabase, isoToUnix } from '../lib/supabase.js';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -15,7 +13,7 @@ export interface TaskDetail {
   serviceTypeName: string;
   serviceDescription: string;
   nextServiceDate: number; // unix timestamp (seconds)
-  scheduledDate: number;   // unix timestamp (seconds)
+  scheduledDate: number; // unix timestamp (seconds)
   attemptCount: number;
   status: string;
 }
@@ -23,13 +21,13 @@ export interface TaskDetail {
 export interface RegisterScheduledData {
   task_id: number;
   outcome: 'scheduled';
-  appointment_date: string; // YYYY-MM-DD
+  appointment_date: string;
 }
 
 export interface RegisterRescheduledData {
   task_id: number;
   outcome: 'rescheduled';
-  rescheduled_date: string; // YYYY-MM-DD
+  rescheduled_date: string;
 }
 
 export interface RegisterAbandonedData {
@@ -58,25 +56,64 @@ export interface ContactAttemptResult {
   next_task_id?: number;
 }
 
-// ── API Functions ────────────────────────────────────────────────
+// ── Functions ────────────────────────────────────────────────────
 
-/**
- * Registra o resultado de uma tentativa de contato.
- */
 export async function registerAttempt(
   data: RegisterAttemptData,
 ): Promise<ContactAttemptResult> {
-  const response = await api.post<{ data: ContactAttemptResult }>(
-    '/api/v1/contact-attempts',
-    data,
-  );
-  return response.data.data;
+  const params: Record<string, unknown> = {
+    p_task_id: data.task_id,
+    p_outcome: data.outcome,
+  };
+  if (data.outcome === 'scheduled') params['p_appointment_date'] = data.appointment_date;
+  else if (data.outcome === 'rescheduled') params['p_rescheduled_date'] = data.rescheduled_date;
+  else if (data.outcome === 'remeasured') params['p_new_mileage'] = data.new_mileage;
+  else if (data.outcome === 'abandoned') {
+    params['p_abandonment_reason_id'] = data.abandonment_reason_id;
+    params['p_abandonment_notes'] = data.abandonment_notes ?? null;
+  }
+
+  const { data: result, error } = await supabase.rpc('register_contact_attempt', params);
+  if (error) throw new Error(error.message);
+  return result as ContactAttemptResult;
 }
 
-/**
- * Busca os dados de uma tarefa específica pelo ID.
- */
+interface TaskDetailRow {
+  id: number;
+  customer_id: number;
+  scheduled_date: string;
+  status: string;
+  attempt_count: number;
+  customers: { name: string; phone: string };
+  service_records: {
+    next_service_date: string;
+    service_description: string;
+    service_types: { name: string };
+  };
+}
+
 export async function getTaskById(taskId: number): Promise<TaskDetail> {
-  const response = await api.get<{ data: TaskDetail }>(`/api/v1/tasks/${taskId}`);
-  return response.data.data;
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(`
+      id, customer_id, scheduled_date, status, attempt_count,
+      customers!inner ( name, phone ),
+      service_records!inner ( next_service_date, service_description, service_types!inner ( name ) )
+    `)
+    .eq('id', taskId)
+    .single();
+  if (error) throw error;
+  const row = data as unknown as TaskDetailRow;
+  return {
+    id: row.id,
+    customerId: row.customer_id,
+    customerName: row.customers.name,
+    customerPhone: row.customers.phone,
+    serviceTypeName: row.service_records.service_types.name,
+    serviceDescription: row.service_records.service_description,
+    nextServiceDate: isoToUnix(row.service_records.next_service_date),
+    scheduledDate: isoToUnix(row.scheduled_date),
+    attemptCount: row.attempt_count,
+    status: row.status,
+  };
 }

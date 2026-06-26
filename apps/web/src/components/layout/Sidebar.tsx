@@ -9,7 +9,7 @@
  */
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
-import { api } from '../../services/api.js';
+import { signOut } from '../../lib/auth.js';
 
 interface NavItem {
   to: string;
@@ -25,18 +25,12 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export default function Sidebar() {
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
 
   async function handleLogout() {
-    try {
-      await api.post('/api/v1/auth/logout');
-    } catch {
-      // Mesmo se o servidor falhar, limpa a sessão local
-    } finally {
-      logout();
-      navigate('/login', { replace: true });
-    }
+    await signOut();
+    navigate('/login', { replace: true });
   }
 
   return (

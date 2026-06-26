@@ -6,17 +6,10 @@
  */
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api.js';
-import { useAuthStore, type AuthUser } from '../store/authStore.js';
-
-interface LoginApiResponse {
-  accessToken: string;
-  user: AuthUser;
-}
+import { signIn } from '../lib/auth.js';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,13 +41,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await api.post<LoginApiResponse>('/api/v1/auth/login', {
-        email: email.trim().toLowerCase(),
-        password,
-      });
-
-      const { accessToken, user } = response.data;
-      login(accessToken, user);
+      await signIn(email.trim().toLowerCase(), password);
       navigate('/', { replace: true });
     } catch {
       // Mensagem genérica — não revela qual campo está errado

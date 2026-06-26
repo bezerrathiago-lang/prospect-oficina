@@ -1,9 +1,7 @@
 /**
- * Serviço HTTP para motivos de desistência
- *
- * Utiliza o cliente axios configurado em api.ts (com interceptors de auth).
+ * Serviço de motivos de desistência — Supabase
  */
-import { api } from './api.js';
+import { supabase } from '../lib/supabase.js';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -24,44 +22,52 @@ export interface UpdateAbandonmentReasonData {
   is_active?: boolean;
 }
 
-// ── API Functions ────────────────────────────────────────────────
+// ── Functions ────────────────────────────────────────────────────
 
-/**
- * Retorna lista de motivos de desistência.
- * @param includeInactive — se true, inclui motivos inativos
- */
-export async function getAbandonmentReasons(includeInactive = false): Promise<AbandonmentReason[]> {
-  const params = includeInactive ? { include_inactive: 'true' } : {};
-  const response = await api.get<{ data: AbandonmentReason[] }>(
-    '/api/v1/abandonment-reasons',
-    { params },
-  );
-  return response.data.data;
+export async function getAbandonmentReasons(
+  includeInactive = false,
+): Promise<AbandonmentReason[]> {
+  let query = supabase
+    .from('abandonment_reasons')
+    .select('id,label,is_other,is_active,sort_order')
+    .order('sort_order', { ascending: true });
+  if (!includeInactive) query = query.eq('is_active', true);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as AbandonmentReason[];
 }
 
-/**
- * Cria novo motivo de desistência.
- */
 export async function createAbandonmentReason(
   data: CreateAbandonmentReasonData,
 ): Promise<AbandonmentReason> {
-  const response = await api.post<{ data: AbandonmentReason }>(
-    '/api/v1/abandonment-reasons',
-    data,
-  );
-  return response.data.data;
+  // sort_order = maior existente + 1
+  const { data: maxRow } = await supabase
+    .from('abandonment_reasons')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextOrder = (maxRow?.sort_order ?? 0) + 1;
+
+  const { data: row, error } = await supabase
+    .from('abandonment_reasons')
+    .insert({ label: data.label, is_other: false, sort_order: nextOrder })
+    .select('id,label,is_other,is_active,sort_order')
+    .single();
+  if (error) throw error;
+  return row as AbandonmentReason;
 }
 
-/**
- * Atualiza motivo de desistência parcialmente (PATCH).
- */
 export async function updateAbandonmentReason(
   id: number,
   data: UpdateAbandonmentReasonData,
 ): Promise<AbandonmentReason> {
-  const response = await api.patch<{ data: AbandonmentReason }>(
-    `/api/v1/abandonment-reasons/${id}`,
-    data,
-  );
-  return response.data.data;
+  const { data: row, error } = await supabase
+    .from('abandonment_reasons')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select('id,label,is_other,is_active,sort_order')
+    .single();
+  if (error) throw error;
+  return row as AbandonmentReason;
 }

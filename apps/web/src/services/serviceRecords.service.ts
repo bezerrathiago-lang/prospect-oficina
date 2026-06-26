@@ -1,9 +1,7 @@
 /**
- * Serviço HTTP para registros de atendimento
- *
- * Utiliza o cliente axios configurado em api.ts (com interceptors de auth).
+ * Serviço de registros de atendimento — Supabase (RPC create_service_record)
  */
-import { api } from './api.js';
+import { supabase } from '../lib/supabase.js';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -12,7 +10,7 @@ export interface CreateServiceRecordData {
   customer_phone: string;
   service_type_id: number;
   service_description: string;
-  last_service_date: string;   // YYYY-MM-DD
+  last_service_date: string; // YYYY-MM-DD
   last_service_mileage: number;
   current_mileage: number;
   next_service_mileage: number;
@@ -22,36 +20,25 @@ export interface CustomerData {
   id: number;
   name: string;
   phone: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface ServiceRecordData {
   id: number;
   customer_id: number;
   service_type_id: number;
-  consultant_id: number;
   service_description: string;
   last_service_date: string;
-  last_service_mileage: number;
-  current_mileage: number;
-  next_service_mileage: number;
   next_service_date: string;
   daily_average_km: number;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface TaskData {
   id: number;
   service_record_id: number;
   customer_id: number;
-  consultant_id: number;
-  scheduled_date: string;
-  status: 'pending' | 'completed' | 'abandoned';
+  scheduled_date: string; // YYYY-MM-DD
+  status: string;
   attempt_count: number;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface CreateServiceRecordResponse {
@@ -60,18 +47,21 @@ export interface CreateServiceRecordResponse {
   task: TaskData;
 }
 
-// ── API Functions ────────────────────────────────────────────────
+// ── Functions ────────────────────────────────────────────────────
 
-/**
- * Cria novo registro de atendimento.
- * Retorna service_record, customer e task criados.
- */
 export async function createServiceRecord(
   data: CreateServiceRecordData,
 ): Promise<CreateServiceRecordResponse> {
-  const response = await api.post<{ data: CreateServiceRecordResponse }>(
-    '/api/v1/service-records',
-    data,
-  );
-  return response.data.data;
+  const { data: result, error } = await supabase.rpc('create_service_record', {
+    p_customer_name: data.customer_name,
+    p_customer_phone: data.customer_phone,
+    p_service_type_id: data.service_type_id,
+    p_service_description: data.service_description,
+    p_last_service_date: data.last_service_date,
+    p_last_service_mileage: data.last_service_mileage,
+    p_current_mileage: data.current_mileage,
+    p_next_service_mileage: data.next_service_mileage,
+  });
+  if (error) throw new Error(error.message);
+  return result as CreateServiceRecordResponse;
 }

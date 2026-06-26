@@ -1,9 +1,7 @@
 /**
- * Serviço HTTP para tipos de serviço
- *
- * Utiliza o cliente axios configurado em api.ts (com interceptors de auth).
+ * Serviço de tipos de serviço — Supabase
  */
-import { api } from './api.js';
+import { supabase } from '../lib/supabase.js';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -12,8 +10,6 @@ export interface ServiceType {
   name: string;
   contact_lead_days: number;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface CreateServiceTypeData {
@@ -27,42 +23,39 @@ export interface UpdateServiceTypeData {
   is_active?: boolean;
 }
 
-// ── API Functions ────────────────────────────────────────────────
+// ── Functions ────────────────────────────────────────────────────
 
-/**
- * Lista tipos de serviço.
- * @param includeInactive — se true, inclui tipos inativos
- */
 export async function getServiceTypes(includeInactive = false): Promise<ServiceType[]> {
-  const params = includeInactive ? { include_inactive: 'true' } : {};
-  const response = await api.get<{ data: ServiceType[] }>(
-    '/api/v1/service-types',
-    { params },
-  );
-  return response.data.data;
+  let query = supabase
+    .from('service_types')
+    .select('id,name,contact_lead_days,is_active')
+    .order('name', { ascending: true });
+  if (!includeInactive) query = query.eq('is_active', true);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as ServiceType[];
 }
 
-/**
- * Cria novo tipo de serviço.
- */
 export async function createServiceType(data: CreateServiceTypeData): Promise<ServiceType> {
-  const response = await api.post<{ data: ServiceType }>(
-    '/api/v1/service-types',
-    data,
-  );
-  return response.data.data;
+  const { data: row, error } = await supabase
+    .from('service_types')
+    .insert(data)
+    .select('id,name,contact_lead_days,is_active')
+    .single();
+  if (error) throw error;
+  return row as ServiceType;
 }
 
-/**
- * Atualiza tipo de serviço parcialmente (PATCH).
- */
 export async function updateServiceType(
   id: number,
   data: UpdateServiceTypeData,
 ): Promise<ServiceType> {
-  const response = await api.patch<{ data: ServiceType }>(
-    `/api/v1/service-types/${id}`,
-    data,
-  );
-  return response.data.data;
+  const { data: row, error } = await supabase
+    .from('service_types')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select('id,name,contact_lead_days,is_active')
+    .single();
+  if (error) throw error;
+  return row as ServiceType;
 }

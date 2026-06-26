@@ -12,8 +12,10 @@
  *     /configuracoes → SettingsPage
  *   *                → redireciona para / (ProtectedRoute cuida do redirect para /login)
  */
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+import { initAuth } from './lib/auth.js';
 import LoginPage from './pages/LoginPage.js';
 import TasksPage from './pages/TasksPage.js';
 import NewServicePage from './pages/NewServicePage.js';
@@ -25,6 +27,10 @@ import ProtectedRoute from './components/layout/ProtectedRoute.js';
 import AppLayout from './components/layout/AppLayout.js';
 
 export default function App() {
+  useEffect(() => {
+    initAuth();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
