@@ -6,7 +6,7 @@
  */
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn } from '../lib/auth.js';
+import { signIn, requestPasswordReset } from '../lib/auth.js';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,8 +16,29 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Recuperação de senha
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
   function validateEmail(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  async function handleForgot() {
+    setError(null);
+    if (!validateEmail(email.trim())) {
+      setError('Informe seu e-mail para receber o link de recuperação.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await requestPasswordReset(email.trim().toLowerCase());
+      setResetSent(true);
+    } catch {
+      setError('Não foi possível enviar o e-mail de recuperação. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -141,6 +162,34 @@ export default function LoginPage() {
             >
               {isLoading ? 'Entrando...' : 'Entrar'}
             </button>
+
+            {/* Recuperação de senha */}
+            {resetSent ? (
+              <p className="text-center text-xs text-green-400 bg-green-950/40 border border-green-800 rounded-lg px-3 py-2">
+                Enviamos um link de recuperação para o seu e-mail. Verifique a caixa de
+                entrada e o spam.
+              </p>
+            ) : forgotMode ? (
+              <button
+                type="button"
+                onClick={handleForgot}
+                disabled={isLoading}
+                className="w-full text-center text-sm text-brand-red hover:underline disabled:opacity-60"
+              >
+                {isLoading ? 'Enviando...' : 'Enviar link de recuperação para o e-mail acima'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotMode(true);
+                  setError(null);
+                }}
+                className="w-full text-center text-xs text-gray-400 hover:text-brand-red transition-colors"
+              >
+                Esqueci minha senha
+              </button>
+            )}
           </form>
         </div>
       </div>

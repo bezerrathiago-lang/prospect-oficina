@@ -33,6 +33,20 @@ export async function signOut(): Promise<void> {
   useAuthStore.getState().setUser(null);
 }
 
+/** Envia e-mail de recuperação de senha com link para /redefinir-senha. */
+export async function requestPasswordReset(email: string): Promise<void> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/redefinir-senha`,
+  });
+  if (error) throw error;
+}
+
+/** Define uma nova senha (usa a sessão de recuperação criada pelo link do e-mail). */
+export async function updatePassword(newPassword: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}
+
 /**
  * Inicializa o estado de auth: carrega a sessão atual e escuta mudanças.
  * Deve ser chamado uma vez no boot do app.

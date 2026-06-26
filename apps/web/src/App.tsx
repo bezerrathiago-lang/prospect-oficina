@@ -17,6 +17,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { initAuth } from './lib/auth.js';
 import LoginPage from './pages/LoginPage.js';
+import ResetPasswordPage from './pages/ResetPasswordPage.js';
 import TasksPage from './pages/TasksPage.js';
 import NewServicePage from './pages/NewServicePage.js';
 import CustomerHistoryPage from './pages/CustomerHistoryPage.js';
@@ -34,8 +35,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ── Rota pública ──────────────────────────────────── */}
+        {/* ── Rotas públicas ────────────────────────────────── */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
 
         {/* ── Rotas protegidas ──────────────────────────────── */}
         <Route element={<ProtectedRoute />}>
