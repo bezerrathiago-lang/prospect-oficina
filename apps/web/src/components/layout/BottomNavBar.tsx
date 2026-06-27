@@ -21,8 +21,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Início', icon: '📊', end: true },
   { to: '/tarefas', label: 'Hoje', icon: '📋', end: true },
   { to: '/novo', label: '+ Novo', icon: '➕', end: true },
-  { to: '/historico', label: 'Histórico', icon: '🔍', end: true },
-  { to: '/configuracoes', label: 'Menu', icon: '⚙️', end: true },
+  { to: '/menu', label: 'Menu', icon: '☰', end: true },
 ];
 
 export default function BottomNavBar() {

@@ -19,6 +19,7 @@ import { initAuth } from './lib/auth.js';
 import LoginPage from './pages/LoginPage.js';
 import ResetPasswordPage from './pages/ResetPasswordPage.js';
 import DashboardPage from './pages/DashboardPage.js';
+import MenuPage from './pages/MenuPage.js';
 import TasksPage from './pages/TasksPage.js';
 import NewServicePage from './pages/NewServicePage.js';
 import CustomerHistoryPage from './pages/CustomerHistoryPage.js';
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="historico" element={<CustomerHistoryPage />} />
             <Route path="historico/:customerId" element={<CustomerHistoryPage />} />
             <Route path="configuracoes" element={<SettingsPage />} />
+            <Route path="menu" element={<MenuPage />} />
           </Route>
         </Route>
 

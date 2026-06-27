@@ -18,6 +18,7 @@ const TITLE_MAP: Record<string, string> = {
   '/novo': 'Novo Atendimento',
   '/historico': 'Histórico',
   '/configuracoes': 'Configurações',
+  '/menu': 'Menu',
 };
 
 function getPageTitle(pathname: string): string {
