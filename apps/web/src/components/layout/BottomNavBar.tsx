@@ -18,6 +18,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { to: '/dashboard', label: 'Início', icon: '📊', end: true },
   { to: '/tarefas', label: 'Hoje', icon: '📋', end: true },
   { to: '/novo', label: '+ Novo', icon: '➕', end: true },
   { to: '/historico', label: 'Histórico', icon: '🔍', end: true },

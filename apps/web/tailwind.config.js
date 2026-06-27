@@ -5,9 +5,11 @@ export default {
     extend: {
       colors: {
         brand: {
-          red: '#DC2626',
+          // Identidade Cirne Motos
+          red: '#E1251B', // vermelho vivo da marca (semicírculo / "MOTOS")
+          graphite: '#4B4F54', // cinza grafite do "CIRNE"
           gray: '#6B7280',
-          dark: '#1F2937',
+          dark: '#2B2E33', // grafite escuro (fundo do login)
         },
       },
     },

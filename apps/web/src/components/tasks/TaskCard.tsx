@@ -97,6 +97,18 @@ export default function TaskCard({ task, isOverdue = false }: TaskCardProps) {
         <span>Próximo: {formatDate(task.nextServiceDate)}</span>
       </div>
 
+      {/* Moto: modelo + placa */}
+      {(task.motorcycleModel || task.motorcyclePlate) && (
+        <p className="mt-1 text-sm text-gray-700">
+          🏍️ {task.motorcycleModel}
+          {task.motorcyclePlate && (
+            <span className="ml-2 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono font-semibold text-gray-700">
+              {task.motorcyclePlate}
+            </span>
+          )}
+        </p>
+      )}
+
       {/* Descrição do serviço */}
       {task.serviceDescription && (
         <p className="mt-1 text-sm text-gray-500">{task.serviceDescription}</p>

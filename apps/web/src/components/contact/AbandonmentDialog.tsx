@@ -23,9 +23,17 @@ interface AbandonmentDialogProps {
   onConfirm: (data: {
     abandonment_reason_id: number;
     abandonment_notes?: string;
+    service_done_location?: string;
   }) => void;
   isPending: boolean;
 }
+
+/** Opções de onde o cliente já fez o serviço (motivo "Já fez o serviço") */
+const SERVICE_DONE_OPTIONS = [
+  'Fez em outra Honda',
+  'Fez em loja paralela',
+  'Fez em outra Cirne Motos',
+];
 
 // ── Sub-componente: RadioItem ──────────────────────────────────────
 
@@ -70,20 +78,27 @@ export default function AbandonmentDialog({
 
   const [selectedReasonId, setSelectedReasonId] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
+  const [serviceDoneLocation, setServiceDoneLocation] = useState('');
 
   const selectedReason = reasons?.find((r) => r.id === selectedReasonId) ?? null;
   const requiresNotes = selectedReason?.is_other === true;
+  const requiresLocation = selectedReason?.is_service_done === true;
   const notesValid = !requiresNotes || notes.trim().length >= 5;
-  const canConfirm = selectedReasonId !== null && notesValid && !isPending;
+  const locationValid = !requiresLocation || serviceDoneLocation.length > 0;
+  const canConfirm =
+    selectedReasonId !== null && notesValid && locationValid && !isPending;
 
   function handleConfirm() {
     if (!canConfirm || selectedReasonId === null) return;
-    const payload: { abandonment_reason_id: number; abandonment_notes?: string } = {
+    const payload: {
+      abandonment_reason_id: number;
+      abandonment_notes?: string;
+      service_done_location?: string;
+    } = {
       abandonment_reason_id: selectedReasonId,
     };
-    if (requiresNotes) {
-      payload.abandonment_notes = notes.trim();
-    }
+    if (requiresNotes) payload.abandonment_notes = notes.trim();
+    if (requiresLocation) payload.service_done_location = serviceDoneLocation;
     onConfirm(payload);
   }
 
@@ -108,6 +123,36 @@ export default function AbandonmentDialog({
               selected={selectedReasonId === reason.id}
               onSelect={setSelectedReasonId}
             />
+          ))}
+        </div>
+      )}
+
+      {/* Sub-opções — apenas para "Já fez o serviço" */}
+      {requiresLocation && (
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            Onde o cliente fez o serviço? <span className="text-red-500">*</span>
+          </label>
+          {SERVICE_DONE_OPTIONS.map((opt) => (
+            <label
+              key={opt}
+              className="flex items-center gap-3 w-full cursor-pointer rounded-lg border px-4"
+              style={{
+                minHeight: '44px',
+                borderColor: serviceDoneLocation === opt ? '#E1251B' : '#D1D5DB',
+                backgroundColor: serviceDoneLocation === opt ? '#FEF2F2' : '#FFFFFF',
+              }}
+            >
+              <input
+                type="radio"
+                name="service_done_location"
+                value={opt}
+                checked={serviceDoneLocation === opt}
+                onChange={() => setServiceDoneLocation(opt)}
+                className="accent-red-600 w-4 h-4 shrink-0"
+              />
+              <span className="text-sm text-gray-800">{opt}</span>
+            </label>
           ))}
         </div>
       )}

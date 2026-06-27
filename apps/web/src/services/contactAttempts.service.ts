@@ -12,6 +12,8 @@ export interface TaskDetail {
   customerPhone: string;
   serviceTypeName: string;
   serviceDescription: string;
+  motorcycleModel: string;
+  motorcyclePlate: string;
   nextServiceDate: number; // unix timestamp (seconds)
   scheduledDate: number; // unix timestamp (seconds)
   attemptCount: number;
@@ -35,6 +37,8 @@ export interface RegisterAbandonedData {
   outcome: 'abandoned';
   abandonment_reason_id: number;
   abandonment_notes?: string;
+  /** local onde o cliente já fez o serviço (motivo "já fez o serviço") */
+  service_done_location?: string;
 }
 
 export interface RegisterRemeasuredData {
@@ -71,6 +75,7 @@ export async function registerAttempt(
   else if (data.outcome === 'abandoned') {
     params['p_abandonment_reason_id'] = data.abandonment_reason_id;
     params['p_abandonment_notes'] = data.abandonment_notes ?? null;
+    params['p_service_done_location'] = data.service_done_location ?? null;
   }
 
   const { data: result, error } = await supabase.rpc('register_contact_attempt', params);
@@ -88,6 +93,8 @@ interface TaskDetailRow {
   service_records: {
     next_service_date: string;
     service_description: string;
+    motorcycle_model: string;
+    motorcycle_plate: string;
     service_types: { name: string };
   };
 }
@@ -98,7 +105,7 @@ export async function getTaskById(taskId: number): Promise<TaskDetail> {
     .select(`
       id, customer_id, scheduled_date, status, attempt_count,
       customers!inner ( name, phone ),
-      service_records!inner ( next_service_date, service_description, service_types!inner ( name ) )
+      service_records!inner ( next_service_date, service_description, motorcycle_model, motorcycle_plate, service_types!inner ( name ) )
     `)
     .eq('id', taskId)
     .single();
@@ -111,6 +118,8 @@ export async function getTaskById(taskId: number): Promise<TaskDetail> {
     customerPhone: row.customers.phone,
     serviceTypeName: row.service_records.service_types.name,
     serviceDescription: row.service_records.service_description,
+    motorcycleModel: row.service_records.motorcycle_model,
+    motorcyclePlate: row.service_records.motorcycle_plate,
     nextServiceDate: isoToUnix(row.service_records.next_service_date),
     scheduledDate: isoToUnix(row.scheduled_date),
     attemptCount: row.attempt_count,

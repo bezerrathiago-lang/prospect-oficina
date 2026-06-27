@@ -27,6 +27,8 @@ import type { CreateServiceRecordResponse } from '../../services/serviceRecords.
 interface FormState {
   customerName: string;
   customerPhone: string;
+  motorcycleModel: string;
+  motorcyclePlate: string;
   serviceTypeId: string;
   serviceDescription: string;
   lastServiceDate: string;
@@ -38,6 +40,8 @@ interface FormState {
 interface FormErrors {
   customerName?: string;
   customerPhone?: string;
+  motorcycleModel?: string;
+  motorcyclePlate?: string;
   serviceTypeId?: string;
   serviceDescription?: string;
   lastServiceDate?: string;
@@ -107,6 +111,21 @@ function validate(form: FormState): FormErrors {
     errors.customerPhone = 'Telefone deve estar no formato (XX) XXXXX-XXXX.';
   }
 
+  // Modelo da moto
+  if (!form.motorcycleModel.trim()) {
+    errors.motorcycleModel = 'Modelo da moto é obrigatório.';
+  } else if (form.motorcycleModel.trim().length < 2) {
+    errors.motorcycleModel = 'Modelo muito curto.';
+  }
+
+  // Placa da moto (7 caracteres alfanuméricos — Mercosul ou antiga)
+  const plateClean = form.motorcyclePlate.replace(/[^A-Za-z0-9]/g, '');
+  if (!plateClean) {
+    errors.motorcyclePlate = 'Placa é obrigatória.';
+  } else if (plateClean.length !== 7) {
+    errors.motorcyclePlate = 'Placa deve ter 7 caracteres (ex.: ABC1D23).';
+  }
+
   // Tipo de serviço
   if (!form.serviceTypeId) {
     errors.serviceTypeId = 'Tipo de serviço é obrigatório.';
@@ -172,6 +191,8 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
   const [form, setForm] = useState<FormState>({
     customerName: '',
     customerPhone: '',
+    motorcycleModel: '',
+    motorcyclePlate: '',
     serviceTypeId: '',
     serviceDescription: '',
     lastServiceDate: '',
@@ -249,6 +270,8 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
     mutation.mutate({
       customer_name: form.customerName.trim(),
       customer_phone: form.customerPhone,
+      motorcycle_model: form.motorcycleModel.trim(),
+      motorcycle_plate: form.motorcyclePlate.replace(/[^A-Za-z0-9]/g, '').toUpperCase(),
       service_type_id: parseInt(form.serviceTypeId, 10),
       service_description: form.serviceDescription.trim(),
       last_service_date: form.lastServiceDate,
@@ -313,6 +336,56 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
         />
         {visibleErrors.customerPhone && (
           <p className="mt-1 text-xs text-red-600">{visibleErrors.customerPhone}</p>
+        )}
+      </div>
+
+      {/* ── Modelo da moto ─── */}
+      <div className="mb-4">
+        <label
+          htmlFor="motorcycleModel"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Modelo da moto <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="motorcycleModel"
+          type="text"
+          value={form.motorcycleModel}
+          onChange={(e) => handleChange('motorcycleModel', e.target.value)}
+          onBlur={() => handleBlur('motorcycleModel')}
+          placeholder="Ex.: Honda CG 160 Titan"
+          className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            visibleErrors.motorcycleModel ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'
+          }`}
+        />
+        {visibleErrors.motorcycleModel && (
+          <p className="mt-1 text-xs text-red-600">{visibleErrors.motorcycleModel}</p>
+        )}
+      </div>
+
+      {/* ── Placa da moto ─── */}
+      <div className="mb-4">
+        <label
+          htmlFor="motorcyclePlate"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Placa <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="motorcyclePlate"
+          type="text"
+          value={form.motorcyclePlate}
+          onChange={(e) =>
+            handleChange('motorcyclePlate', e.target.value.toUpperCase().slice(0, 8))
+          }
+          onBlur={() => handleBlur('motorcyclePlate')}
+          placeholder="Ex.: ABC1D23"
+          className={`w-full rounded-lg border px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            visibleErrors.motorcyclePlate ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'
+          }`}
+        />
+        {visibleErrors.motorcyclePlate && (
+          <p className="mt-1 text-xs text-red-600">{visibleErrors.motorcyclePlate}</p>
         )}
       </div>
 

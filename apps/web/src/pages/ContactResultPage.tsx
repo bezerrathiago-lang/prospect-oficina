@@ -74,6 +74,16 @@ function ContextCard({ task }: { task: TaskDetail }) {
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <p className="font-bold text-gray-900 text-base">{task.customerName}</p>
       <p className="text-sm text-blue-600 mt-0.5">{task.customerPhone}</p>
+      {(task.motorcycleModel || task.motorcyclePlate) && (
+        <p className="mt-1 text-sm text-gray-700">
+          🏍️ {task.motorcycleModel}
+          {task.motorcyclePlate && (
+            <span className="ml-2 inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono font-semibold text-gray-700">
+              {task.motorcyclePlate}
+            </span>
+          )}
+        </p>
+      )}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
         <span>{task.serviceTypeName}</span>
         <span>Próximo serviço: {formatDate(task.nextServiceDate)}</span>
@@ -105,14 +115,14 @@ function SelectView({
     <div className="flex flex-col gap-4 mt-2">
       <p className="text-sm font-semibold text-gray-700">Qual foi o resultado?</p>
 
-      {/* Agendamento Confirmado */}
+      {/* Agendamento Realizado */}
       <button
         type="button"
         onClick={onScheduled}
         className="w-full rounded-xl border-2 py-4 px-4 text-left font-semibold text-sm transition-colors hover:bg-green-50 active:bg-green-100"
         style={{ borderColor: '#22C55E', color: '#16A34A' }}
       >
-        <span className="text-base">Agendamento Confirmado</span>
+        <span className="text-base">✓ Agendamento Realizado</span>
         <p className="font-normal text-green-700 text-xs mt-0.5">
           Cliente aceitou agendar o serviço
         </p>
@@ -126,7 +136,7 @@ function SelectView({
       >
         <span className="text-base">Não consegui agendar</span>
         <p className="font-normal text-gray-500 text-xs mt-0.5">
-          Não houve contato ou cliente recusou
+          Informe o motivo do não agendamento
         </p>
       </button>
     </div>
@@ -507,6 +517,7 @@ export default function ContactResultPage() {
   function handleAbandonedConfirm(data: {
     abandonment_reason_id: number;
     abandonment_notes?: string;
+    service_done_location?: string;
   }) {
     const payload: import('../services/contactAttempts.service.js').RegisterAbandonedData = {
       task_id: taskId,
@@ -515,6 +526,9 @@ export default function ContactResultPage() {
     };
     if (data.abandonment_notes !== undefined) {
       payload.abandonment_notes = data.abandonment_notes;
+    }
+    if (data.service_done_location !== undefined) {
+      payload.service_done_location = data.service_done_location;
     }
     mutation.mutate(payload);
   }

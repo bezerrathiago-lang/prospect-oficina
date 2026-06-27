@@ -10,6 +10,8 @@ export interface CreateServiceRecordData {
   customer_phone: string;
   service_type_id: number;
   service_description: string;
+  motorcycle_plate: string;
+  motorcycle_model: string;
   last_service_date: string; // YYYY-MM-DD
   last_service_mileage: number;
   current_mileage: number;
@@ -57,6 +59,8 @@ export async function createServiceRecord(
     p_customer_phone: data.customer_phone,
     p_service_type_id: data.service_type_id,
     p_service_description: data.service_description,
+    p_motorcycle_plate: data.motorcycle_plate,
+    p_motorcycle_model: data.motorcycle_model,
     p_last_service_date: data.last_service_date,
     p_last_service_mileage: data.last_service_mileage,
     p_current_mileage: data.current_mileage,

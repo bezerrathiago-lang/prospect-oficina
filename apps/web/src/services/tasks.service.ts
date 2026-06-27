@@ -17,6 +17,8 @@ export interface TaskItem {
   customerPhone: string;
   serviceTypeName: string;
   serviceDescription: string;
+  motorcycleModel: string;
+  motorcyclePlate: string;
   nextServiceDate: number; // unix timestamp (seconds)
   attemptCount: number;
   status: 'pending' | 'completed_scheduled' | 'completed_rescheduled' | 'abandoned';
@@ -39,6 +41,8 @@ interface TaskRow {
   service_records: {
     next_service_date: string;
     service_description: string;
+    motorcycle_model: string;
+    motorcycle_plate: string;
     service_types: { name: string };
   };
 }
@@ -46,7 +50,7 @@ interface TaskRow {
 const SELECT = `
   id, customer_id, scheduled_date, status, attempt_count,
   customers!inner ( name, phone ),
-  service_records!inner ( next_service_date, service_description, service_types!inner ( name ) )
+  service_records!inner ( next_service_date, service_description, motorcycle_model, motorcycle_plate, service_types!inner ( name ) )
 `;
 
 function mapRow(row: TaskRow): TaskItem {
@@ -57,6 +61,8 @@ function mapRow(row: TaskRow): TaskItem {
     customerPhone: row.customers.phone,
     serviceTypeName: row.service_records.service_types.name,
     serviceDescription: row.service_records.service_description,
+    motorcycleModel: row.service_records.motorcycle_model,
+    motorcyclePlate: row.service_records.motorcycle_plate,
     nextServiceDate: isoToUnix(row.service_records.next_service_date),
     attemptCount: row.attempt_count,
     status: row.status,

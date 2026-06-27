@@ -10,6 +10,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
 import { signOut } from '../../lib/auth.js';
+import Logo from '../Logo.js';
 
 interface NavItem {
   to: string;
@@ -18,6 +19,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { to: '/dashboard', label: 'Início', icon: '📊' },
   { to: '/tarefas', label: 'Hoje', icon: '📋' },
   { to: '/novo', label: '+ Novo Atendimento', icon: '➕' },
   { to: '/historico', label: 'Histórico', icon: '🔍' },
@@ -43,9 +45,7 @@ export default function Sidebar() {
     >
       {/* Logo / cabeçalho */}
       <div className="px-5 py-5 border-b border-gray-100">
-        <span className="text-lg font-bold text-brand-red tracking-tight">
-          ProspectMoto
-        </span>
+        <Logo size={32} />
       </div>
 
       {/* Navegação */}

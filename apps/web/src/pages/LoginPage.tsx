@@ -7,6 +7,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signIn, requestPasswordReset } from '../lib/auth.js';
+import Logo from '../components/Logo.js';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -76,11 +77,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-brand-dark flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo / título */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-red tracking-tight">
-            ProspectMoto
-          </h1>
-          <p className="mt-1 text-gray-400 text-sm">
+        <div className="flex flex-col items-center mb-8">
+          <Logo size={64} stacked variant="light" />
+          <p className="mt-3 text-gray-400 text-sm">
             Sistema de Gestão de Prospecção
           </p>
         </div>

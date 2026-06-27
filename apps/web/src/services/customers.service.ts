@@ -16,6 +16,7 @@ export interface ContactAttemptDetail {
   appointment_date: number | null;
   rescheduled_date: number | null;
   new_mileage: number | null;
+  service_done_location: string | null;
   abandonment_reason: { label: string; is_other: boolean } | null;
   abandonment_notes: string | null;
   created_at: number;
@@ -79,7 +80,7 @@ export async function getCustomer(id: number): Promise<CustomerDetail> {
           id, status, scheduled_date, attempt_count, created_at,
           contact_attempts!contact_attempts_task_id_fkey (
             id, outcome, appointment_date, rescheduled_date, new_mileage,
-            abandonment_notes, created_at,
+            service_done_location, abandonment_notes, created_at,
             abandonment_reasons ( label, is_other )
           )
         )
@@ -103,6 +104,7 @@ export async function getCustomer(id: number): Promise<CustomerDetail> {
               appointment_date: a.appointment_date ? isoToUnix(a.appointment_date) : null,
               rescheduled_date: a.rescheduled_date ? isoToUnix(a.rescheduled_date) : null,
               new_mileage: a.new_mileage ?? null,
+              service_done_location: a.service_done_location ?? null,
               abandonment_reason: a.abandonment_reasons
                 ? { label: a.abandonment_reasons.label, is_other: a.abandonment_reasons.is_other }
                 : null,

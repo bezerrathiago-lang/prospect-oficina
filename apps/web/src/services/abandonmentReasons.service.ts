@@ -9,6 +9,7 @@ export interface AbandonmentReason {
   id: number;
   label: string;
   is_other: boolean;
+  is_service_done: boolean;
   is_active: boolean;
   sort_order: number;
 }
@@ -29,7 +30,7 @@ export async function getAbandonmentReasons(
 ): Promise<AbandonmentReason[]> {
   let query = supabase
     .from('abandonment_reasons')
-    .select('id,label,is_other,is_active,sort_order')
+    .select('id,label,is_other,is_service_done,is_active,sort_order')
     .order('sort_order', { ascending: true });
   if (!includeInactive) query = query.eq('is_active', true);
   const { data, error } = await query;
@@ -52,7 +53,7 @@ export async function createAbandonmentReason(
   const { data: row, error } = await supabase
     .from('abandonment_reasons')
     .insert({ label: data.label, is_other: false, sort_order: nextOrder })
-    .select('id,label,is_other,is_active,sort_order')
+    .select('id,label,is_other,is_service_done,is_active,sort_order')
     .single();
   if (error) throw error;
   return row as AbandonmentReason;
@@ -66,7 +67,7 @@ export async function updateAbandonmentReason(
     .from('abandonment_reasons')
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
-    .select('id,label,is_other,is_active,sort_order')
+    .select('id,label,is_other,is_service_done,is_active,sort_order')
     .single();
   if (error) throw error;
   return row as AbandonmentReason;

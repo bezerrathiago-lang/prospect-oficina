@@ -75,14 +75,16 @@ export default function ContactAttemptItem({ attempt }: ContactAttemptItemProps)
   // outcome === 'abandoned'
   const reasonLabel = attempt.abandonment_reason?.label ?? 'Motivo desconhecido';
   const notes = attempt.abandonment_notes;
+  const location = attempt.service_done_location;
 
   return (
     <div className="flex items-start gap-2 py-2 border-b border-gray-100 last:border-0">
       <span className="mt-0.5 shrink-0 text-red-600 font-bold" aria-hidden="true">✗</span>
       <div>
         <p className="text-xs text-gray-400">{dateLabel}</p>
-        <p className="text-sm font-medium" style={{ color: '#DC2626' }}>
-          Desistência — {reasonLabel}
+        <p className="text-sm font-medium" style={{ color: '#E1251B' }}>
+          Encerrado — {reasonLabel}
+          {location ? ` (${location})` : ''}
           {notes ? ` (${notes})` : ''}
         </p>
       </div>

@@ -9,9 +9,11 @@
  */
 import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
+import Logo from '../Logo.js';
 
 /** Mapeia pathname para título legível */
 const TITLE_MAP: Record<string, string> = {
+  '/dashboard': 'Início',
   '/tarefas': 'Tarefas de Hoje',
   '/novo': 'Novo Atendimento',
   '/historico': 'Histórico',
@@ -35,10 +37,11 @@ export default function Header() {
                  h-14 px-4
                  bg-white border-b border-gray-200"
     >
-      {/* Título da tela */}
-      <h1 className="text-base font-semibold text-gray-900 truncate">
-        {title}
-      </h1>
+      {/* Logo + título da tela */}
+      <div className="flex items-center gap-2 min-w-0">
+        <Logo size={26} withWordmark={false} />
+        <h1 className="text-base font-semibold text-gray-900 truncate">{title}</h1>
+      </div>
 
       {/* Nome do consultor */}
       {user && (
