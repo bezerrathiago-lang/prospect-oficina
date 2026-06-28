@@ -16,6 +16,7 @@ export interface CreateServiceRecordData {
   last_service_mileage: number;
   current_mileage: number;
   next_service_mileage: number;
+  store_id?: number | null; // obrigatório p/ admin/gerente; consultor herda a própria loja
 }
 
 export interface CustomerData {
@@ -65,6 +66,7 @@ export async function createServiceRecord(
     p_last_service_mileage: data.last_service_mileage,
     p_current_mileage: data.current_mileage,
     p_next_service_mileage: data.next_service_mileage,
+    p_store_id: data.store_id ?? null,
   });
   if (error) throw new Error(error.message);
   return result as CreateServiceRecordResponse;

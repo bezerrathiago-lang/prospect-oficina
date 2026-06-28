@@ -28,6 +28,8 @@ import ContactResultPage from './pages/ContactResultPage.js';
 
 import ProtectedRoute from './components/layout/ProtectedRoute.js';
 import AppLayout from './components/layout/AppLayout.js';
+import RoleRoute from './components/layout/RoleRoute.js';
+import HomeRedirect from './components/layout/HomeRedirect.js';
 
 export default function App() {
   useEffect(() => {
@@ -44,16 +46,25 @@ export default function App() {
         {/* ── Rotas protegidas ──────────────────────────────── */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
-            {/* Rota raiz: dashboard como home */}
-            <Route index element={<Navigate to="/dashboard" replace />} />
+            {/* Rota raiz: home conforme o papel (consultor → /tarefas) */}
+            <Route index element={<HomeRedirect />} />
 
-            <Route path="dashboard" element={<DashboardPage />} />
+            {/* Início: apenas admin e gerente */}
+            <Route element={<RoleRoute allow={['admin', 'manager']} />}>
+              <Route path="dashboard" element={<DashboardPage />} />
+            </Route>
+
             <Route path="tarefas" element={<TasksPage />} />
             <Route path="tarefas/:taskId/resultado" element={<ContactResultPage />} />
             <Route path="novo" element={<NewServicePage />} />
             <Route path="historico" element={<CustomerHistoryPage />} />
             <Route path="historico/:customerId" element={<CustomerHistoryPage />} />
-            <Route path="configuracoes" element={<SettingsPage />} />
+
+            {/* Configurações: apenas admin */}
+            <Route element={<RoleRoute allow={['admin']} />}>
+              <Route path="configuracoes" element={<SettingsPage />} />
+            </Route>
+
             <Route path="menu" element={<MenuPage />} />
           </Route>
         </Route>

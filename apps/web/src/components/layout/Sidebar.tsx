@@ -12,23 +12,27 @@ import { useAuthStore } from '../../store/authStore.js';
 import { signOut } from '../../lib/auth.js';
 import Logo from '../Logo.js';
 
+import type { Role } from '../../store/authStore.js';
+
 interface NavItem {
   to: string;
   label: string;
   icon: string;
+  roles: Role[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/dashboard', label: 'Início', icon: '📊' },
-  { to: '/tarefas', label: 'Hoje', icon: '📋' },
-  { to: '/novo', label: '+ Novo Atendimento', icon: '➕' },
-  { to: '/historico', label: 'Histórico', icon: '🔍' },
-  { to: '/configuracoes', label: 'Configurações', icon: '⚙️' },
+  { to: '/dashboard', label: 'Início', icon: '📊', roles: ['admin', 'manager'] },
+  { to: '/tarefas', label: 'Hoje', icon: '📋', roles: ['admin', 'manager', 'consultant'] },
+  { to: '/novo', label: '+ Novo Atendimento', icon: '➕', roles: ['admin', 'manager', 'consultant'] },
+  { to: '/historico', label: 'Histórico', icon: '🔍', roles: ['admin', 'manager', 'consultant'] },
+  { to: '/configuracoes', label: 'Configurações', icon: '⚙️', roles: ['admin'] },
 ];
 
 export default function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
+  const navItems = NAV_ITEMS.filter((i) => user && i.roles.includes(user.role));
 
   async function handleLogout() {
     await signOut();
@@ -50,7 +54,7 @@ export default function Sidebar() {
 
       {/* Navegação */}
       <nav className="flex-1 px-3 py-4 space-y-1" aria-label="Navegação principal">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -82,7 +86,7 @@ export default function Sidebar() {
             </p>
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
             <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-brand-red capitalize">
-              {user.role === 'consultant' ? 'Consultor' : 'Gerente'}
+              {user.role === 'admin' ? 'Admin' : user.role === 'manager' ? 'Gerente' : 'Consultor'}
             </span>
           </div>
         )}

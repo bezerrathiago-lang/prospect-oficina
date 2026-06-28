@@ -32,10 +32,15 @@ export interface AbandonmentBreakdownItem {
  * @param from data inicial (YYYY-MM-DD)
  * @param to   data final (YYYY-MM-DD)
  */
-export async function getDashboardMetrics(from: string, to: string): Promise<DashboardMetrics> {
+export async function getDashboardMetrics(
+  from: string,
+  to: string,
+  storeId?: number | null,
+): Promise<DashboardMetrics> {
   const { data, error } = await supabase.rpc('get_dashboard_metrics', {
     p_from: from,
     p_to: to,
+    p_store_id: storeId ?? null,
   });
   if (error) throw error;
   return data as DashboardMetrics;
@@ -46,11 +51,13 @@ export async function getDashboardDetails(
   metric: DetailMetric,
   from: string,
   to: string,
+  storeId?: number | null,
 ): Promise<DashboardDetailItem[]> {
   const { data, error } = await supabase.rpc('get_dashboard_details', {
     p_metric: metric,
     p_from: from,
     p_to: to,
+    p_store_id: storeId ?? null,
   });
   if (error) throw error;
   return (data ?? []) as DashboardDetailItem[];
@@ -60,10 +67,12 @@ export async function getDashboardDetails(
 export async function getAbandonmentBreakdown(
   from: string,
   to: string,
+  storeId?: number | null,
 ): Promise<AbandonmentBreakdownItem[]> {
   const { data, error } = await supabase.rpc('get_abandonment_breakdown', {
     p_from: from,
     p_to: to,
+    p_store_id: storeId ?? null,
   });
   if (error) throw error;
   return (data ?? []) as AbandonmentBreakdownItem[];
@@ -73,10 +82,12 @@ export async function getAbandonmentBreakdown(
 export async function getRenewalBreakdown(
   from: string,
   to: string,
+  storeId?: number | null,
 ): Promise<AbandonmentBreakdownItem[]> {
   const { data, error } = await supabase.rpc('get_renewal_breakdown', {
     p_from: from,
     p_to: to,
+    p_store_id: storeId ?? null,
   });
   if (error) throw error;
   return (data ?? []) as AbandonmentBreakdownItem[];

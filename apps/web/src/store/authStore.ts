@@ -6,11 +6,14 @@
  */
 import { create } from 'zustand';
 
+export type Role = 'consultant' | 'manager' | 'admin';
+
 export interface AuthUser {
   id: string; // uuid do Supabase Auth
   name: string;
   email: string;
-  role: 'consultant' | 'manager';
+  role: Role;
+  storeId: number | null; // loja do consultor; null para admin/gerente
 }
 
 interface AuthState {

@@ -15,6 +15,8 @@ import ServiceTypeItem from '../components/service-types/ServiceTypeItem.js';
 import ServiceTypeSheet from '../components/service-types/ServiceTypeSheet.js';
 import AbandonmentReasonItem from '../components/abandonment-reasons/AbandonmentReasonItem.js';
 import AbandonmentReasonSheet from '../components/abandonment-reasons/AbandonmentReasonSheet.js';
+import StoresSection from '../components/settings/StoresSection.js';
+import UsersSection from '../components/settings/UsersSection.js';
 import type { ServiceType } from '../services/serviceTypes.service.js';
 import type { AbandonmentReason } from '../services/abandonmentReasons.service.js';
 
@@ -71,6 +73,12 @@ export default function SettingsPage() {
     <>
       <main className="flex-1 px-4 py-6">
         <h1 className="text-xl font-bold text-gray-900">Configurações</h1>
+
+        {/* ── Seção: Lojas (Admin) ─────────────────────────────── */}
+        <StoresSection />
+
+        {/* ── Seção: Usuários (Admin) ──────────────────────────── */}
+        <UsersSection />
 
         {/* ── Seção: Tipos de Serviço ──────────────────────────── */}
         <section className="mt-6" aria-labelledby="service-types-heading">

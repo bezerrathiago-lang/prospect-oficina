@@ -8,11 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { signOut } from '../lib/auth.js';
 
+import type { Role } from '../store/authStore.js';
+
 interface MenuLink {
   to: string;
   label: string;
   description: string;
   icon: string;
+  roles: Role[];
 }
 
 const LINKS: MenuLink[] = [
@@ -21,18 +24,21 @@ const LINKS: MenuLink[] = [
     label: 'Histórico de Clientes',
     description: 'Buscar clientes e ver atendimentos',
     icon: '🔍',
+    roles: ['admin', 'manager', 'consultant'],
   },
   {
     to: '/configuracoes',
     label: 'Configurações',
-    description: 'Tipos de serviço e motivos',
+    description: 'Lojas, usuários, tipos de serviço e motivos',
     icon: '⚙️',
+    roles: ['admin'],
   },
 ];
 
 export default function MenuPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const links = LINKS.filter((l) => user && l.roles.includes(user.role));
 
   async function handleLogout() {
     await signOut();
@@ -49,14 +55,14 @@ export default function MenuPage() {
           <p className="font-semibold text-gray-900">{user.name}</p>
           <p className="text-sm text-gray-500">{user.email}</p>
           <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-brand-red">
-            {user.role === 'manager' ? 'Gerente' : 'Consultor'}
+            {user.role === 'admin' ? 'Admin' : user.role === 'manager' ? 'Gerente' : 'Consultor'}
           </span>
         </div>
       )}
 
       {/* Links */}
       <div className="flex flex-col gap-2">
-        {LINKS.map((link) => (
+        {links.map((link) => (
           <button
             key={link.to}
             type="button"

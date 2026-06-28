@@ -6,17 +6,29 @@
  */
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase.js';
-import { useAuthStore, type AuthUser } from '../store/authStore.js';
+import { useAuthStore, type AuthUser, type Role } from '../store/authStore.js';
 
-function toAuthUser(user: User | null): AuthUser | null {
+/**
+ * Monta o AuthUser a partir da sessão + profile (fonte de verdade no banco
+ * para papel e loja). Cai para o user_metadata se o profile ainda não existir.
+ */
+async function toAuthUser(user: User | null): Promise<AuthUser | null> {
   if (!user) return null;
   const meta = (user.user_metadata ?? {}) as { name?: string; role?: string };
-  const role = meta.role === 'manager' ? 'manager' : 'consultant';
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('name, role, store_id')
+    .eq('id', user.id)
+    .single();
+
+  const role = (profile?.role ?? meta.role ?? 'consultant') as Role;
   return {
     id: user.id,
     email: user.email ?? '',
-    name: meta.name ?? user.email ?? 'Usuário',
-    role,
+    name: profile?.name ?? meta.name ?? user.email ?? 'Usuário',
+    role: ['consultant', 'manager', 'admin'].includes(role) ? role : 'consultant',
+    storeId: profile?.store_id ?? null,
   };
 }
 
@@ -24,7 +36,7 @@ function toAuthUser(user: User | null): AuthUser | null {
 export async function signIn(email: string, password: string): Promise<void> {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
-  useAuthStore.getState().setUser(toAuthUser(data.user));
+  useAuthStore.getState().setUser(await toAuthUser(data.user));
 }
 
 /** Encerra a sessão. */
@@ -54,12 +66,19 @@ export async function updatePassword(newPassword: string): Promise<void> {
 export function initAuth(): void {
   const store = useAuthStore.getState();
 
-  void supabase.auth.getSession().then(({ data }) => {
-    store.setUser(toAuthUser(data.session?.user ?? null));
+  void supabase.auth.getSession().then(async ({ data }) => {
+    store.setUser(await toAuthUser(data.session?.user ?? null));
     store.setLoading(false);
   });
 
-  supabase.auth.onAuthStateChange((_event, session) => {
-    useAuthStore.getState().setUser(toAuthUser(session?.user ?? null));
+  supabase.auth.onAuthStateChange((event, session) => {
+    // Evita refazer a query do profile em todo refresh de token
+    if (event === 'SIGNED_OUT') {
+      useAuthStore.getState().setUser(null);
+    } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+      void toAuthUser(session?.user ?? null).then((u) =>
+        useAuthStore.getState().setUser(u),
+      );
+    }
   });
 }

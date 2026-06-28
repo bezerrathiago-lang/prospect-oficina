@@ -13,6 +13,7 @@ interface Props {
   title: string;
   from: string;
   to: string;
+  storeId?: number | null;
   onClose: () => void;
 }
 
@@ -43,10 +44,10 @@ function ItemRow({ metric, item }: { metric: DetailMetric; item: DashboardDetail
   );
 }
 
-export default function DashboardDetailModal({ metric, title, from, to, onClose }: Props) {
+export default function DashboardDetailModal({ metric, title, from, to, storeId, onClose }: Props) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['dashboard-details', metric, from, to],
-    queryFn: () => getDashboardDetails(metric, from, to),
+    queryKey: ['dashboard-details', metric, from, to, storeId ?? null],
+    queryFn: () => getDashboardDetails(metric, from, to, storeId),
     staleTime: 30 * 1000,
   });
 

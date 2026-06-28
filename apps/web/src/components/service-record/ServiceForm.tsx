@@ -18,6 +18,8 @@
 import { useState, useMemo } from 'react';
 import { useServiceTypes } from '../../hooks/useServiceTypes.js';
 import { useCreateServiceRecord } from '../../hooks/useServiceRecord.js';
+import { useStores } from '../../hooks/useStores.js';
+import { useAuthStore } from '../../store/authStore.js';
 import { calculateForecast } from '../../lib/forecast.js';
 import ForecastPreviewCard from './ForecastPreviewCard.js';
 import type { CreateServiceRecordResponse } from '../../services/serviceRecords.service.js';
@@ -204,6 +206,12 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
+  // Loja: consultor herda a própria (não escolhe). Admin/gerente (sem loja) escolhem.
+  const authUser = useAuthStore((s) => s.user);
+  const needsStorePick = !authUser?.storeId;
+  const { data: stores = [], isLoading: loadingStores } = useStores();
+  const [selectedStore, setSelectedStore] = useState<string>('');
+
   const { data: serviceTypes = [], isLoading: loadingTypes } = useServiceTypes();
   const mutation = useCreateServiceRecord(onSuccess);
 
@@ -217,7 +225,8 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
     }
   });
 
-  const isFormValid = Object.keys(errors).length === 0;
+  const storeMissing = needsStorePick && !selectedStore;
+  const isFormValid = Object.keys(errors).length === 0 && !storeMissing;
 
   // Preview de previsão em tempo real
   const forecast = useMemo(
@@ -278,6 +287,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
       last_service_mileage: parseInt(parseMileage(form.lastServiceMileage), 10),
       current_mileage: parseInt(parseMileage(form.currentMileage), 10),
       next_service_mileage: parseInt(parseMileage(form.nextServiceMileage), 10),
+      store_id: needsStorePick ? Number(selectedStore) : null,
     });
   }
 
@@ -285,6 +295,34 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="pb-24">
+      {/* ── Loja (apenas admin/gerente, que não têm loja própria) ─── */}
+      {needsStorePick && (
+        <div className="mb-4">
+          <label htmlFor="storeId" className="block text-sm font-medium text-gray-700 mb-1">
+            Loja <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="storeId"
+            value={selectedStore}
+            onChange={(e) => setSelectedStore(e.target.value)}
+            disabled={loadingStores}
+            className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+              submitAttempted && storeMissing ? 'border-red-400 bg-red-50' : 'border-gray-300'
+            }`}
+          >
+            <option value="">{loadingStores ? 'Carregando...' : 'Selecione a loja'}</option>
+            {stores.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          {submitAttempted && storeMissing && (
+            <p className="mt-1 text-xs text-red-600">Selecione a loja do atendimento.</p>
+          )}
+        </div>
+      )}
+
       {/* ── Nome do cliente ─── */}
       <div className="mb-4">
         <label

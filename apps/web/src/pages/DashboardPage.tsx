@@ -16,6 +16,7 @@ import {
 } from '../services/dashboard.service.js';
 import DashboardDetailModal from '../components/dashboard/DashboardDetailModal.js';
 import PieChart from '../components/dashboard/PieChart.js';
+import { useStores } from '../hooks/useStores.js';
 
 type Period = 'hoje' | 'mes' | 'tudo';
 
@@ -80,21 +81,26 @@ export default function DashboardPage() {
   const range = useMemo(() => periodRange(period), [period]);
   const [detail, setDetail] = useState<{ metric: DetailMetric; title: string } | null>(null);
 
+  // Filtro de loja (Admin/Gerente). '' = todas as lojas (visão global).
+  const { data: stores } = useStores(false);
+  const [storeFilter, setStoreFilter] = useState<string>('');
+  const storeId = storeFilter ? Number(storeFilter) : null;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['dashboard', range.from, range.to],
-    queryFn: () => getDashboardMetrics(range.from, range.to),
+    queryKey: ['dashboard', range.from, range.to, storeId],
+    queryFn: () => getDashboardMetrics(range.from, range.to, storeId),
     staleTime: 30 * 1000,
   });
 
   const { data: breakdown } = useQuery({
-    queryKey: ['dashboard-breakdown', range.from, range.to],
-    queryFn: () => getAbandonmentBreakdown(range.from, range.to),
+    queryKey: ['dashboard-breakdown', range.from, range.to, storeId],
+    queryFn: () => getAbandonmentBreakdown(range.from, range.to, storeId),
     staleTime: 30 * 1000,
   });
 
   const { data: renewalBreakdown } = useQuery({
-    queryKey: ['dashboard-renewal', range.from, range.to],
-    queryFn: () => getRenewalBreakdown(range.from, range.to),
+    queryKey: ['dashboard-renewal', range.from, range.to, storeId],
+    queryFn: () => getRenewalBreakdown(range.from, range.to, storeId),
     staleTime: 30 * 1000,
   });
 
@@ -110,20 +116,36 @@ export default function DashboardPage() {
       <h1 className="text-xl font-bold text-gray-900 mb-1">Gestão à vista</h1>
       <p className="text-sm text-gray-500 mb-4">Visão geral da prospecção</p>
 
-      {/* Filtro de período */}
-      <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1 mb-6">
-        {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setPeriod(p)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              period === p ? 'bg-brand-red text-white' : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            {PERIOD_LABELS[p]}
-          </button>
-        ))}
+      {/* Filtros: período + loja */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+          {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPeriod(p)}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                period === p ? 'bg-brand-red text-white' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {PERIOD_LABELS[p]}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={storeFilter}
+          onChange={(e) => setStoreFilter(e.target.value)}
+          aria-label="Filtrar por loja"
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+        >
+          <option value="">Todas as lojas</option>
+          {stores?.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {isError ? (
@@ -215,6 +237,7 @@ export default function DashboardPage() {
           title={detail.title}
           from={range.from}
           to={range.to}
+          storeId={storeId}
           onClose={() => setDetail(null)}
         />
       )}

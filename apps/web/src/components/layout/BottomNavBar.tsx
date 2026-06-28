@@ -8,6 +8,7 @@
  * - Safe area respeitada via padding-bottom (iOS home indicator)
  */
 import { NavLink } from 'react-router-dom';
+import { useAuthStore, type Role } from '../../store/authStore.js';
 
 interface NavItem {
   to: string;
@@ -15,16 +16,19 @@ interface NavItem {
   icon: string;
   /** Marca como ativa também em sub-rotas */
   end?: boolean;
+  roles: Role[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/dashboard', label: 'Início', icon: '📊', end: true },
-  { to: '/tarefas', label: 'Hoje', icon: '📋', end: true },
-  { to: '/novo', label: '+ Novo', icon: '➕', end: true },
-  { to: '/menu', label: 'Menu', icon: '☰', end: true },
+  { to: '/dashboard', label: 'Início', icon: '📊', end: true, roles: ['admin', 'manager'] },
+  { to: '/tarefas', label: 'Hoje', icon: '📋', end: true, roles: ['admin', 'manager', 'consultant'] },
+  { to: '/novo', label: '+ Novo', icon: '➕', end: true, roles: ['admin', 'manager', 'consultant'] },
+  { to: '/menu', label: 'Menu', icon: '☰', end: true, roles: ['admin', 'manager', 'consultant'] },
 ];
 
 export default function BottomNavBar() {
+  const user = useAuthStore((s) => s.user);
+  const navItems = NAV_ITEMS.filter((i) => user && i.roles.includes(user.role));
   return (
     <nav
       aria-label="Navegação principal"
@@ -34,7 +38,7 @@ export default function BottomNavBar() {
                  h-16 pb-safe"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {NAV_ITEMS.map((item) => (
+      {navItems.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
