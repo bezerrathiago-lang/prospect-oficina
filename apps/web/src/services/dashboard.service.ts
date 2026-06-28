@@ -68,3 +68,16 @@ export async function getAbandonmentBreakdown(
   if (error) throw error;
   return (data ?? []) as AbandonmentBreakdownItem[];
 }
+
+/** Contagem dos cenários que motivaram nova prospecção no período (gráfico pizza). */
+export async function getRenewalBreakdown(
+  from: string,
+  to: string,
+): Promise<AbandonmentBreakdownItem[]> {
+  const { data, error } = await supabase.rpc('get_renewal_breakdown', {
+    p_from: from,
+    p_to: to,
+  });
+  if (error) throw error;
+  return (data ?? []) as AbandonmentBreakdownItem[];
+}

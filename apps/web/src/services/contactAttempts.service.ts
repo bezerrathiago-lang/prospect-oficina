@@ -60,6 +60,7 @@ export interface ContactAttemptResult {
 
 export interface RenewProspectionData {
   task_id: number;
+  scenario: string; // cenário da renovação (já fez conosco / oficina paralela / concorrente Honda)
   service_type_id: number;
   service_description: string;
   last_service_date: string; // YYYY-MM-DD
@@ -74,6 +75,7 @@ export async function renewProspection(
 ): Promise<{ scheduled_date: string }> {
   const { data: result, error } = await supabase.rpc('renew_prospection', {
     p_task_id: data.task_id,
+    p_scenario: data.scenario,
     p_service_type_id: data.service_type_id,
     p_service_description: data.service_description,
     p_last_service_date: data.last_service_date,

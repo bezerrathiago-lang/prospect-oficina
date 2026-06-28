@@ -92,7 +92,7 @@ export default function AbandonmentDialog({
         Esta ação encerrará definitivamente a prospecção deste cliente
       </div>
 
-      <p className="text-sm font-semibold text-gray-700">Motivo da desistência</p>
+      <p className="text-sm font-semibold text-gray-700">Motivo do abandono</p>
 
       {/* Lista de motivos */}
       {isLoading ? (
@@ -153,7 +153,7 @@ export default function AbandonmentDialog({
               Registrando...
             </span>
           ) : (
-            'Confirmar Desistência'
+            'Confirmar Abandono'
           )}
         </button>
 

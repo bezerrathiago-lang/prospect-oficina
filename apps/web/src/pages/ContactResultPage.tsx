@@ -32,7 +32,8 @@ type SubFlow =
   | 'rescheduled'
   | 'remeasure'
   | 'update'
-  | 'renew';
+  | 'renew'
+  | 'abandon';
 
 interface Toast {
   message: string;
@@ -279,15 +280,17 @@ function NotReachedView({
 
 function UpdateView({
   onRenew,
+  onAbandon,
   onBack,
-  children,
 }: {
   onRenew: () => void;
+  onAbandon: () => void;
   onBack: () => void;
-  children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-4 mt-2">
+      <p className="text-sm font-semibold text-gray-700">O que aconteceu?</p>
+
       <button
         type="button"
         onClick={onRenew}
@@ -300,14 +303,17 @@ function UpdateView({
         </p>
       </button>
 
-      <div className="flex items-center gap-3 py-1">
-        <span className="h-px flex-1 bg-gray-200" />
-        <span className="text-xs text-gray-400">ou encerre informando o motivo</span>
-        <span className="h-px flex-1 bg-gray-200" />
-      </div>
-
-      {/* AbandonmentDialog (lista de motivos) */}
-      {children}
+      <button
+        type="button"
+        onClick={onAbandon}
+        className="w-full rounded-xl border-2 py-4 px-4 text-left font-semibold text-sm transition-colors hover:bg-red-50 active:bg-red-100"
+        style={{ borderColor: '#E1251B', color: '#E1251B' }}
+      >
+        <span className="text-base">Abandonar oportunidade</span>
+        <p className="font-normal text-red-600 text-xs mt-0.5">
+          Encerrar a prospecção informando o motivo
+        </p>
+      </button>
 
       <button
         type="button"
@@ -591,6 +597,7 @@ export default function ContactResultPage() {
   }
 
   function handleRenewConfirm(data: {
+    scenario: string;
     service_type_id: number;
     service_description: string;
     last_service_date: string;
@@ -645,6 +652,7 @@ export default function ContactResultPage() {
     remeasure: 'Atualizar Quilometragem',
     update: 'Atualizar Prospecção',
     renew: 'Nova Prospecção',
+    abandon: 'Abandonar Oportunidade',
   };
 
   return (
@@ -711,15 +719,9 @@ export default function ContactResultPage() {
         {subFlow === 'update' && (
           <UpdateView
             onRenew={() => setSubFlow('renew')}
+            onAbandon={() => setSubFlow('abandon')}
             onBack={() => setSubFlow('not_reached')}
-          >
-            <AbandonmentDialog
-              taskId={taskId}
-              onBack={() => setSubFlow('not_reached')}
-              onConfirm={handleAbandonedConfirm}
-              isPending={mutation.isPending}
-            />
-          </UpdateView>
+          />
         )}
 
         {subFlow === 'renew' && (
@@ -727,6 +729,15 @@ export default function ContactResultPage() {
             onBack={() => setSubFlow('update')}
             onConfirm={handleRenewConfirm}
             isPending={renewMutation.isPending}
+          />
+        )}
+
+        {subFlow === 'abandon' && (
+          <AbandonmentDialog
+            taskId={taskId}
+            onBack={() => setSubFlow('update')}
+            onConfirm={handleAbandonedConfirm}
+            isPending={mutation.isPending}
           />
         )}
       </div>

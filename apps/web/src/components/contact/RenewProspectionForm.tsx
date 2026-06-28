@@ -12,6 +12,7 @@ import ForecastPreviewCard from '../service-record/ForecastPreviewCard.js';
 interface RenewProspectionFormProps {
   onBack: () => void;
   onConfirm: (data: {
+    scenario: string;
     service_type_id: number;
     service_description: string;
     last_service_date: string;
@@ -21,6 +22,13 @@ interface RenewProspectionFormProps {
   }) => void;
   isPending: boolean;
 }
+
+/** Cenários que justificam programar uma nova prospecção */
+const SCENARIOS = [
+  'Já fez o serviço conosco',
+  'Fez serviço em oficina paralela',
+  'Fez em concorrente Honda',
+];
 
 function todayIso(): string {
   const d = new Date();
@@ -43,6 +51,7 @@ export default function RenewProspectionForm({
   const today = todayIso();
   const { data: serviceTypes = [], isLoading: loadingTypes } = useServiceTypes();
 
+  const [scenario, setScenario] = useState('');
   const [serviceTypeId, setServiceTypeId] = useState('');
   const [description, setDescription] = useState('');
   const [lastDate, setLastDate] = useState('');
@@ -66,6 +75,7 @@ export default function RenewProspectionForm({
   );
 
   const valid =
+    scenario !== '' &&
     serviceTypeId !== '' &&
     description.trim().length >= 3 &&
     lastDate !== '' &&
@@ -81,6 +91,7 @@ export default function RenewProspectionForm({
   function handleConfirm() {
     if (!canConfirm) return;
     onConfirm({
+      scenario,
       service_type_id: parseInt(serviceTypeId, 10),
       service_description: description.trim(),
       last_service_date: lastDate,
@@ -98,6 +109,33 @@ export default function RenewProspectionForm({
       <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-800">
         Programe a próxima prospecção informando a quilometragem. A prospecção atual
         será encerrada e uma nova será criada com a data calculada.
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-gray-700">
+          Por que programar nova prospecção? <span className="text-red-500">*</span>
+        </label>
+        {SCENARIOS.map((opt) => (
+          <label
+            key={opt}
+            className="flex items-center gap-3 w-full cursor-pointer rounded-lg border px-4"
+            style={{
+              minHeight: '44px',
+              borderColor: scenario === opt ? '#16A34A' : '#D1D5DB',
+              backgroundColor: scenario === opt ? '#F0FDF4' : '#FFFFFF',
+            }}
+          >
+            <input
+              type="radio"
+              name="renewal_scenario"
+              value={opt}
+              checked={scenario === opt}
+              onChange={() => setScenario(opt)}
+              className="accent-green-600 w-4 h-4 shrink-0"
+            />
+            <span className="text-sm text-gray-800">{opt}</span>
+          </label>
+        ))}
       </div>
 
       <div>

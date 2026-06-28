@@ -11,9 +11,11 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getDashboardMetrics,
   getAbandonmentBreakdown,
+  getRenewalBreakdown,
   type DetailMetric,
 } from '../services/dashboard.service.js';
 import DashboardDetailModal from '../components/dashboard/DashboardDetailModal.js';
+import PieChart from '../components/dashboard/PieChart.js';
 
 type Period = 'hoje' | 'mes' | 'tudo';
 
@@ -90,6 +92,12 @@ export default function DashboardPage() {
     staleTime: 30 * 1000,
   });
 
+  const { data: renewalBreakdown } = useQuery({
+    queryKey: ['dashboard-renewal', range.from, range.to],
+    queryFn: () => getRenewalBreakdown(range.from, range.to),
+    staleTime: 30 * 1000,
+  });
+
   const registradas = data?.prospeccoes_registradas ?? 0;
   const agendamentos = data?.agendamentos_realizados ?? 0;
   const semSucesso = data?.prospeccoes_sem_sucesso ?? 0;
@@ -158,9 +166,23 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Gráfico pizza: cenários de nova prospecção */}
+      <section className="mt-8 max-w-3xl">
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          Cenários de nova prospecção
+        </h2>
+        {!renewalBreakdown || renewalBreakdown.length === 0 ? (
+          <p className="text-sm text-gray-400">Nenhuma nova prospecção programada no período.</p>
+        ) : (
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <PieChart data={renewalBreakdown} />
+          </div>
+        )}
+      </section>
+
       {/* Gráfico de motivos de insucesso */}
       <section className="mt-8 max-w-3xl">
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">Motivos de insucesso</h2>
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">Motivos de abandono</h2>
         {!breakdown || breakdown.length === 0 ? (
           <p className="text-sm text-gray-400">Nenhuma prospecção sem sucesso no período.</p>
         ) : (
