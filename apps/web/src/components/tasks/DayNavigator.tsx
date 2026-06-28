@@ -10,6 +10,7 @@
  * Ao clicar nas setas, chama onNavigate com a nova data (YYYY-MM-DD).
  * Ao clicar em "Hoje", chama onNavigate com a data de hoje.
  */
+import { useRef } from 'react';
 import { addDays, formatDayLabel, isToday, toISODate } from '../../lib/dates.js';
 
 interface DayNavigatorProps {
@@ -20,6 +21,7 @@ interface DayNavigatorProps {
 export default function DayNavigator({ selectedDate, onNavigate }: DayNavigatorProps) {
   const showTodayButton = !isToday(selectedDate);
   const label = formatDayLabel(selectedDate);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   function handlePrev() {
     onNavigate(addDays(selectedDate, -1), 'left');
@@ -35,6 +37,12 @@ export default function DayNavigator({ selectedDate, onNavigate }: DayNavigatorP
     onNavigate(today, direction);
   }
 
+  function handlePickDate(value: string) {
+    if (!value) return;
+    const direction: 'left' | 'right' = value < selectedDate ? 'left' : 'right';
+    onNavigate(value, direction);
+  }
+
   return (
     <div className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2 border border-gray-200">
       {/* Botão anterior */}
@@ -47,11 +55,27 @@ export default function DayNavigator({ selectedDate, onNavigate }: DayNavigatorP
         ←
       </button>
 
-      {/* Label central + botão Hoje */}
-      <div className="flex flex-1 items-center justify-center gap-2 min-w-0">
-        <span className="text-sm font-semibold text-gray-800 truncate">
+      {/* Label central (clicável = abre calendário) + botão Hoje */}
+      <div className="relative flex flex-1 items-center justify-center gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={() => dateInputRef.current?.showPicker?.()}
+          className="flex items-center gap-1 text-sm font-semibold text-gray-800 truncate hover:text-brand-red transition-colors"
+          aria-label="Escolher data"
+        >
           {label}
-        </span>
+          <span className="text-gray-400" aria-hidden="true">▾</span>
+        </button>
+        {/* input de data oculto para o seletor nativo */}
+        <input
+          ref={dateInputRef}
+          type="date"
+          value={selectedDate}
+          onChange={(e) => handlePickDate(e.target.value)}
+          className="absolute inset-0 h-0 w-0 opacity-0 pointer-events-none"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
 
         {showTodayButton && (
           <button

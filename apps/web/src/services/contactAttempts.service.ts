@@ -37,8 +37,6 @@ export interface RegisterAbandonedData {
   outcome: 'abandoned';
   abandonment_reason_id: number;
   abandonment_notes?: string;
-  /** local onde o cliente já fez o serviço (motivo "já fez o serviço") */
-  service_done_location?: string;
 }
 
 export interface RegisterRemeasuredData {
@@ -60,6 +58,33 @@ export interface ContactAttemptResult {
   next_task_id?: number;
 }
 
+export interface RenewProspectionData {
+  task_id: number;
+  service_type_id: number;
+  service_description: string;
+  last_service_date: string; // YYYY-MM-DD
+  last_service_mileage: number;
+  current_mileage: number;
+  next_service_mileage: number;
+}
+
+/** Encerra a prospecção atual e programa um novo ciclo (próximo serviço). */
+export async function renewProspection(
+  data: RenewProspectionData,
+): Promise<{ scheduled_date: string }> {
+  const { data: result, error } = await supabase.rpc('renew_prospection', {
+    p_task_id: data.task_id,
+    p_service_type_id: data.service_type_id,
+    p_service_description: data.service_description,
+    p_last_service_date: data.last_service_date,
+    p_last_service_mileage: data.last_service_mileage,
+    p_current_mileage: data.current_mileage,
+    p_next_service_mileage: data.next_service_mileage,
+  });
+  if (error) throw new Error(error.message);
+  return (result as { task: { scheduled_date: string } }).task;
+}
+
 // ── Functions ────────────────────────────────────────────────────
 
 export async function registerAttempt(
@@ -75,7 +100,6 @@ export async function registerAttempt(
   else if (data.outcome === 'abandoned') {
     params['p_abandonment_reason_id'] = data.abandonment_reason_id;
     params['p_abandonment_notes'] = data.abandonment_notes ?? null;
-    params['p_service_done_location'] = data.service_done_location ?? null;
   }
 
   const { data: result, error } = await supabase.rpc('register_contact_attempt', params);

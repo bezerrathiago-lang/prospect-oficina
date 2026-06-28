@@ -53,6 +53,16 @@ export default function ServiceRecordCard({
           <p className="font-semibold text-gray-900 text-sm">
             {record.service_type_name}
           </p>
+          {(record.motorcycle_model || record.motorcycle_plate) && (
+            <p className="text-xs text-gray-700 mt-0.5">
+              🏍️ {record.motorcycle_model}
+              {record.motorcycle_plate && (
+                <span className="ml-1.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono font-semibold text-gray-700">
+                  {record.motorcycle_plate}
+                </span>
+              )}
+            </p>
+          )}
           {record.service_description && (
             <p className="text-xs text-gray-600 mt-0.5">{record.service_description}</p>
           )}

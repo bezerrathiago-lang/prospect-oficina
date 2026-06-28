@@ -15,10 +15,12 @@
  */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getTaskById } from '../services/contactAttempts.service.js';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getTaskById, renewProspection } from '../services/contactAttempts.service.js';
+import type { RenewProspectionData } from '../services/contactAttempts.service.js';
 import { useRegisterAttempt } from '../hooks/useContactAttempt.js';
 import AbandonmentDialog from '../components/contact/AbandonmentDialog.js';
+import RenewProspectionForm from '../components/contact/RenewProspectionForm.js';
 import type { TaskDetail } from '../services/contactAttempts.service.js';
 
 // ── Tipos ──────────────────────────────────────────────────────────
@@ -29,7 +31,8 @@ type SubFlow =
   | 'not_reached'
   | 'rescheduled'
   | 'remeasure'
-  | 'abandoned';
+  | 'update'
+  | 'renew';
 
 interface Toast {
   message: string;
@@ -170,6 +173,7 @@ function ScheduledView({
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          onClick={(e) => e.currentTarget.showPicker?.()}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         />
       </div>
@@ -254,11 +258,56 @@ function NotReachedView({
         onClick={onAbandon}
         className="w-full rounded-xl border-2 border-gray-300 py-4 px-4 text-left font-semibold text-sm text-gray-700 transition-colors hover:bg-gray-50 active:bg-gray-100"
       >
-        <span className="text-base">Desistir desta prospecção</span>
+        <span className="text-base">Atualizar prospecção</span>
         <p className="font-normal text-gray-500 text-xs mt-0.5">
-          Encerrar definitivamente o contato com este cliente
+          Programar nova prospecção ou encerrar com motivo
         </p>
       </button>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="w-full rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50"
+      >
+        ← Voltar
+      </button>
+    </div>
+  );
+}
+
+// ── Sub-tela: Atualizar Prospecção (nova prospecção ou encerrar) ──
+
+function UpdateView({
+  onRenew,
+  onBack,
+  children,
+}: {
+  onRenew: () => void;
+  onBack: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4 mt-2">
+      <button
+        type="button"
+        onClick={onRenew}
+        className="w-full rounded-xl border-2 py-4 px-4 text-left font-semibold text-sm transition-colors hover:bg-green-50 active:bg-green-100"
+        style={{ borderColor: '#16A34A', color: '#16A34A' }}
+      >
+        <span className="text-base">Programar nova prospecção</span>
+        <p className="font-normal text-green-700 text-xs mt-0.5">
+          Cliente já fez o serviço — agendar o próximo ciclo por km
+        </p>
+      </button>
+
+      <div className="flex items-center gap-3 py-1">
+        <span className="h-px flex-1 bg-gray-200" />
+        <span className="text-xs text-gray-400">ou encerre informando o motivo</span>
+        <span className="h-px flex-1 bg-gray-200" />
+      </div>
+
+      {/* AbandonmentDialog (lista de motivos) */}
+      {children}
 
       <button
         type="button"
@@ -401,6 +450,7 @@ function RescheduledView({
           value={date}
           min={tomorrow}
           onChange={(e) => setDate(e.target.value)}
+          onClick={(e) => e.currentTarget.showPicker?.()}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
         />
         {date.length > 0 && date < tomorrow && (
@@ -447,6 +497,7 @@ function RescheduledView({
 export default function ContactResultPage() {
   const { taskId: taskIdParam } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const taskId = parseInt(taskIdParam ?? '', 10);
 
@@ -488,6 +539,16 @@ export default function ContactResultPage() {
     void navigate('/tarefas');
   });
 
+  // ── Mutation de renovação (novo ciclo)
+  const renewMutation = useMutation({
+    mutationFn: (data: RenewProspectionData) => renewProspection(data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      setToast({ message: 'Nova prospecção programada', color: 'green' });
+      void navigate('/tarefas');
+    },
+  });
+
   // ── Handlers
   function handleScheduledConfirm(appointmentDate: string) {
     mutation.mutate({
@@ -517,7 +578,6 @@ export default function ContactResultPage() {
   function handleAbandonedConfirm(data: {
     abandonment_reason_id: number;
     abandonment_notes?: string;
-    service_done_location?: string;
   }) {
     const payload: import('../services/contactAttempts.service.js').RegisterAbandonedData = {
       task_id: taskId,
@@ -527,10 +587,18 @@ export default function ContactResultPage() {
     if (data.abandonment_notes !== undefined) {
       payload.abandonment_notes = data.abandonment_notes;
     }
-    if (data.service_done_location !== undefined) {
-      payload.service_done_location = data.service_done_location;
-    }
     mutation.mutate(payload);
+  }
+
+  function handleRenewConfirm(data: {
+    service_type_id: number;
+    service_description: string;
+    last_service_date: string;
+    last_service_mileage: number;
+    current_mileage: number;
+    next_service_mileage: number;
+  }) {
+    renewMutation.mutate({ task_id: taskId, ...data });
   }
 
   // ── Renderização
@@ -575,7 +643,8 @@ export default function ContactResultPage() {
     not_reached: 'Não Conseguiu Agendar',
     rescheduled: 'Reagendar Contato',
     remeasure: 'Atualizar Quilometragem',
-    abandoned: 'Encerrar Prospecção',
+    update: 'Atualizar Prospecção',
+    renew: 'Nova Prospecção',
   };
 
   return (
@@ -618,7 +687,7 @@ export default function ContactResultPage() {
           <NotReachedView
             onReschedule={() => setSubFlow('rescheduled')}
             onRemeasure={() => setSubFlow('remeasure')}
-            onAbandon={() => setSubFlow('abandoned')}
+            onAbandon={() => setSubFlow('update')}
             onBack={() => setSubFlow('select')}
           />
         )}
@@ -639,21 +708,34 @@ export default function ContactResultPage() {
           />
         )}
 
-        {subFlow === 'abandoned' && (
-          <AbandonmentDialog
-            taskId={taskId}
+        {subFlow === 'update' && (
+          <UpdateView
+            onRenew={() => setSubFlow('renew')}
             onBack={() => setSubFlow('not_reached')}
-            onConfirm={handleAbandonedConfirm}
-            isPending={mutation.isPending}
+          >
+            <AbandonmentDialog
+              taskId={taskId}
+              onBack={() => setSubFlow('not_reached')}
+              onConfirm={handleAbandonedConfirm}
+              isPending={mutation.isPending}
+            />
+          </UpdateView>
+        )}
+
+        {subFlow === 'renew' && (
+          <RenewProspectionForm
+            onBack={() => setSubFlow('update')}
+            onConfirm={handleRenewConfirm}
+            isPending={renewMutation.isPending}
           />
         )}
       </div>
 
       {/* Mutation error */}
-      {mutation.isError && (
+      {(mutation.isError || renewMutation.isError) && (
         <div className="mt-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          {(mutation.error as { response?: { data?: { error?: { message?: string } } } })
-            ?.response?.data?.error?.message ?? 'Erro ao registrar. Tente novamente.'}
+          {((mutation.error ?? renewMutation.error) as Error | null)?.message ??
+            'Erro ao registrar. Tente novamente.'}
         </div>
       )}
     </main>

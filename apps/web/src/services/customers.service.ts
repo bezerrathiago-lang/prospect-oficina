@@ -35,6 +35,8 @@ export interface ServiceRecordDetail {
   id: number;
   service_type_name: string;
   service_description: string;
+  motorcycle_model: string;
+  motorcycle_plate: string;
   last_service_date: number;
   last_service_mileage: number;
   current_mileage: number;
@@ -73,7 +75,8 @@ export async function getCustomer(id: number): Promise<CustomerDetail> {
     .select(`
       id, name, phone,
       service_records (
-        id, service_description, last_service_date, last_service_mileage,
+        id, service_description, motorcycle_model, motorcycle_plate,
+        last_service_date, last_service_mileage,
         current_mileage, next_service_date, created_at,
         service_types ( name ),
         tasks (
@@ -126,6 +129,8 @@ export async function getCustomer(id: number): Promise<CustomerDetail> {
         id: r.id,
         service_type_name: r.service_types?.name ?? '',
         service_description: r.service_description ?? '',
+        motorcycle_model: r.motorcycle_model ?? '',
+        motorcycle_plate: r.motorcycle_plate ?? '',
         last_service_date: isoToUnix(r.last_service_date),
         last_service_mileage: r.last_service_mileage,
         current_mileage: r.current_mileage,

@@ -164,6 +164,12 @@ function CustomerDetailPage({ customerId }: { customerId: number }) {
 
   if (!customer) return null;
 
+  // Tarefa pendente mais recente (para antecipar agendamento)
+  const pendingTaskId = customer.service_records
+    .flatMap((r) => r.tasks)
+    .filter((t) => t.status === 'pending')
+    .sort((a, b) => b.created_at - a.created_at)[0]?.id;
+
   return (
     <main className="flex-1 px-4 py-6">
       {/* Botão Voltar */}
@@ -182,6 +188,17 @@ function CustomerDetailPage({ customerId }: { customerId: number }) {
         phone={customer.phone}
         latestStatus={customer.latest_status}
       />
+
+      {/* Antecipar: registrar resultado da prospecção pendente antes da data */}
+      {pendingTaskId && (
+        <button
+          type="button"
+          onClick={() => void navigate(`/tarefas/${pendingTaskId}/resultado`)}
+          className="mt-3 w-full rounded-xl bg-brand-red py-3 text-sm font-semibold text-white hover:bg-red-700 active:bg-red-800 transition-colors"
+        >
+          Registrar resultado / Antecipar agendamento
+        </button>
+      )}
 
       {/* Histórico de atendimentos */}
       <section className="mt-5">
