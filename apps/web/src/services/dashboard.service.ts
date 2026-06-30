@@ -28,6 +28,13 @@ export interface AbandonmentBreakdownItem {
   count: number;
 }
 
+export interface ConsultantRankingItem {
+  consultant_id: string;
+  name: string;
+  prospeccoes: number;
+  agendamentos: number;
+}
+
 /**
  * @param from data inicial (YYYY-MM-DD)
  * @param to   data final (YYYY-MM-DD)
@@ -76,6 +83,21 @@ export async function getAbandonmentBreakdown(
   });
   if (error) throw error;
   return (data ?? []) as AbandonmentBreakdownItem[];
+}
+
+/** Ranking de consultores: prospecções registradas e agendamentos no período. */
+export async function getConsultantRanking(
+  from: string,
+  to: string,
+  storeId?: number | null,
+): Promise<ConsultantRankingItem[]> {
+  const { data, error } = await supabase.rpc('get_consultant_ranking', {
+    p_from: from,
+    p_to: to,
+    p_store_id: storeId ?? null,
+  });
+  if (error) throw error;
+  return (data ?? []) as ConsultantRankingItem[];
 }
 
 /** Contagem dos cenários que motivaram nova prospecção no período (gráfico pizza). */

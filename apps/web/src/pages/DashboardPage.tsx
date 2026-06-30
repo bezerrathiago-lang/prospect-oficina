@@ -12,10 +12,12 @@ import {
   getDashboardMetrics,
   getAbandonmentBreakdown,
   getRenewalBreakdown,
+  getConsultantRanking,
   type DetailMetric,
 } from '../services/dashboard.service.js';
 import DashboardDetailModal from '../components/dashboard/DashboardDetailModal.js';
 import PieChart from '../components/dashboard/PieChart.js';
+import ConsultantRanking from '../components/dashboard/ConsultantRanking.js';
 import { useStores } from '../hooks/useStores.js';
 
 type Period = 'hoje' | 'mes' | 'tudo';
@@ -104,6 +106,12 @@ export default function DashboardPage() {
     staleTime: 30 * 1000,
   });
 
+  const { data: ranking } = useQuery({
+    queryKey: ['dashboard-ranking', range.from, range.to, storeId],
+    queryFn: () => getConsultantRanking(range.from, range.to, storeId),
+    staleTime: 30 * 1000,
+  });
+
   const registradas = data?.prospeccoes_registradas ?? 0;
   const agendamentos = data?.agendamentos_realizados ?? 0;
   const semSucesso = data?.prospeccoes_sem_sucesso ?? 0;
@@ -187,6 +195,18 @@ export default function DashboardPage() {
           />
         </div>
       )}
+
+      {/* Ranking de consultores */}
+      <section className="mt-8 max-w-3xl">
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          Ranking de consultores
+        </h2>
+        {!ranking || ranking.length === 0 ? (
+          <p className="text-sm text-gray-400">Nenhuma atividade de consultores no período.</p>
+        ) : (
+          <ConsultantRanking data={ranking} />
+        )}
+      </section>
 
       {/* Gráfico pizza: cenários de nova prospecção */}
       <section className="mt-8 max-w-3xl">
