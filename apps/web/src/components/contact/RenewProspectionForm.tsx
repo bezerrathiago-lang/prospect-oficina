@@ -8,6 +8,7 @@ import { useState, useMemo } from 'react';
 import { useServiceTypes } from '../../hooks/useServiceTypes.js';
 import { calculateForecast } from '../../lib/forecast.js';
 import ForecastPreviewCard from '../service-record/ForecastPreviewCard.js';
+import DateField from '../ui/DateField.js';
 
 interface RenewProspectionFormProps {
   onBack: () => void;
@@ -172,12 +173,10 @@ export default function RenewProspectionForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Data do último serviço <span className="text-red-500">*</span>
         </label>
-        <input
-          type="date"
+        <DateField
           value={lastDate}
           max={today}
-          onChange={(e) => setLastDate(e.target.value)}
-          onClick={(e) => e.currentTarget.showPicker?.()}
+          onChange={(v) => setLastDate(v)}
           className={inputCls}
         />
       </div>

@@ -72,15 +72,17 @@ function mapRow(row: TaskRow): TaskItem {
 // ── Functions ────────────────────────────────────────────────────
 
 export async function getTasks(date: string): Promise<TaskListResponse> {
-  const consultantId = useAuthStore.getState().user?.id;
-  if (!consultantId) {
+  // Todos (admin/gerente/consultor) veem os atendimentos do dia, independente
+  // de quem cadastrou. O escopo por loja é garantido pelo RLS: consultor
+  // enxerga só a própria loja; admin/gerente, todas.
+  const userId = useAuthStore.getState().user?.id;
+  if (!userId) {
     return { date, pending_count: 0, pending: [], completed: [] };
   }
 
   const { data, error } = await supabase
     .from('tasks')
     .select(SELECT)
-    .eq('consultant_id', consultantId)
     .eq('scheduled_date', date);
   if (error) throw error;
 

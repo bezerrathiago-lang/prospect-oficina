@@ -22,6 +22,7 @@ import { useStores } from '../../hooks/useStores.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { calculateForecast } from '../../lib/forecast.js';
 import ForecastPreviewCard from './ForecastPreviewCard.js';
+import DateField from '../ui/DateField.js';
 import type { CreateServiceRecordResponse } from '../../services/serviceRecords.service.js';
 
 // ── Tipos ────────────────────────────────────────────────────────
@@ -494,13 +495,11 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
         >
           Data do último serviço <span className="text-red-500">*</span>
         </label>
-        <input
+        <DateField
           id="lastServiceDate"
-          type="date"
           value={form.lastServiceDate}
           max={today}
-          onChange={(e) => handleChange('lastServiceDate', e.target.value)}
-          onClick={(e) => e.currentTarget.showPicker?.()}
+          onChange={(v) => handleChange('lastServiceDate', v)}
           onBlur={() => handleBlur('lastServiceDate')}
           className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             visibleErrors.lastServiceDate

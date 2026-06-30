@@ -21,6 +21,7 @@ import type { RenewProspectionData } from '../services/contactAttempts.service.j
 import { useRegisterAttempt } from '../hooks/useContactAttempt.js';
 import AbandonmentDialog from '../components/contact/AbandonmentDialog.js';
 import RenewProspectionForm from '../components/contact/RenewProspectionForm.js';
+import DateField from '../components/ui/DateField.js';
 import type { TaskDetail } from '../services/contactAttempts.service.js';
 
 // ── Tipos ──────────────────────────────────────────────────────────
@@ -169,12 +170,10 @@ function ScheduledView({
         <label className="text-sm text-gray-600" htmlFor="appointment-date">
           Quando o cliente vai trazer a moto?
         </label>
-        <input
+        <DateField
           id="appointment-date"
-          type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
-          onClick={(e) => e.currentTarget.showPicker?.()}
+          onChange={(v) => setDate(v)}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         />
       </div>
@@ -450,13 +449,11 @@ function RescheduledView({
         <label className="text-sm font-medium text-gray-700" htmlFor="reschedule-date">
           Nova data para ligar
         </label>
-        <input
+        <DateField
           id="reschedule-date"
-          type="date"
           value={date}
           min={tomorrow}
-          onChange={(e) => setDate(e.target.value)}
-          onClick={(e) => e.currentTarget.showPicker?.()}
+          onChange={(v) => setDate(v)}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
         />
         {date.length > 0 && date < tomorrow && (
